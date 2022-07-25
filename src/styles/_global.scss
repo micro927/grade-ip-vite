@@ -1,0 +1,19 @@
+body {
+    font-family: 'Maitree', sans-serif;
+    // background-color: $dark;
+    // color: white;
+}
+
+header {
+    min-height: 5vh;
+}
+
+main {
+    // @extend .px-4, ;
+    // @extend .py-5;
+    min-height: 83vh;
+}
+
+footer {
+    height: 5vh;
+}
