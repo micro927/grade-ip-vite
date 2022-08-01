@@ -17,9 +17,7 @@ function AppNavbar() {
         role: "REG",
     }
     function handleLoginClick() {
-        const loginURL = process.env.REACT_APP_CMU_OAUTH_LOGIN_URL
-        console.log(loginURL)
-        window.location.href = loginURL
+        window.location.href = 'authentication'
     }
     return (
         <>
@@ -34,13 +32,13 @@ function AppNavbar() {
                         <Nav className='me-auto'>
                             {loginInfo.logged &&
                                 <>
-                                    <Nav.Link className='text-black-50' href='course.php'>บันทึกลำดับขั้น</Nav.Link>
-                                    <Nav.Link className='text-black-50' href='approvement.php'>ยืนยันเกรด</Nav.Link>
-                                    <Nav.Link className='text-black-50' href='send.php'>นำส่งสำนักทะเบียน</Nav.Link>
-                                    <Nav.Link className='text-black-50' href='verify.php'>ยืนยันเกรดสำนักทะเบียนฯ</Nav.Link>
-                                    <Nav.Link className='text-black-50' href='#'>ภาพรวม</Nav.Link>
+                                    <Nav.Link className='text-black-50'>บันทึกลำดับขั้น</Nav.Link>
+                                    <Nav.Link className='text-black-50'>ยืนยันเกรด</Nav.Link>
+                                    <Nav.Link className='text-black-50'>นำส่งสำนักทะเบียน</Nav.Link>
+                                    <Nav.Link className='text-black-50'>ยืนยันเกรดสำนักทะเบียนฯ</Nav.Link>
+                                    <Nav.Link className='text-black-50'>ภาพรวม</Nav.Link>
                                 </>}
-                            <Nav.Link className='text-black-50' href='#'>คู่มือการใช้งาน</Nav.Link>
+                            <Nav.Link className='text-black-50'>คู่มือการใช้งาน</Nav.Link>
                         </Nav>
                         {loginInfo.logged
                             ?
