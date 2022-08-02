@@ -14,7 +14,7 @@ import {
 // import Layout from "./Layout";
 
 import Welcome from "./components/Welcome";
-import Authentication from "./components/Authentication";
+import { Authentication } from "./components/Authentication";
 
 // const Navbar = () => <h1>Navbar</h1>
 // const Atest = () => <h1>TestA</h1>

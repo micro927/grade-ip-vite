@@ -1,5 +1,6 @@
 import './index.scss'
 import cmuLogo from '../../assets/cmu.png'
+import { redirectToCmuOauth, Logout } from '../Authentication'
 
 import {
     Container,
@@ -11,14 +12,18 @@ import {
 
 function AppNavbar() {
     const semesterYear = "2/65"
-    const loginInfo = {
-        logged: false,
-        userName: "Micro Micro",
-        role: "REG",
-    }
+    const loginInfo = localStorage.getItem('loginInfo')
+    const isLogin = localStorage.getItem('isLogin')
+
+
     function handleLoginClick() {
-        window.location.href = 'authentication'
+        redirectToCmuOauth()
     }
+
+    function handleLogoutClick() {
+        Logout()
+    }
+
     return (
         <>
             <Navbar expand='lg'>
@@ -30,7 +35,7 @@ function AppNavbar() {
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className='me-auto'>
-                            {loginInfo.logged &&
+                            {isLogin &&
                                 <>
                                     <Nav.Link className='text-black-50'>บันทึกลำดับขั้น</Nav.Link>
                                     <Nav.Link className='text-black-50'>ยืนยันเกรด</Nav.Link>
@@ -40,11 +45,11 @@ function AppNavbar() {
                                 </>}
                             <Nav.Link className='text-black-50'>คู่มือการใช้งาน</Nav.Link>
                         </Nav>
-                        {loginInfo.logged
+                        {isLogin
                             ?
                             <>
                                 <span className='me-2 d-block d-xl-inline '>{loginInfo.userName}</span>
-                                <Button variant="primary">ออกจากระบบ</Button>
+                                <Button variant="primary" onClick={handleLogoutClick}>ออกจากระบบ</Button>
                             </>
                             :
                             <Button variant="primary" onClick={handleLoginClick}>เข้าสู่ระบบ</Button>
