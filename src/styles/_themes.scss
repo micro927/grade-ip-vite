@@ -1,59 +1,61 @@
-// // scss-docs-start color-variables
-// $white: #fff;
-// $gray-100: #f8f9fa;
-// $gray-200: #e9ecef;
-// $gray-300: #dee2e6;
-// $gray-400: #ced4da;
-// $gray-500: #adb5bd;
-// $gray-600: #6c757d;
-// $gray-700: #495057;
-// $gray-800: #343a40;
-// $gray-900: #212529;
-// $black: #000;
+/// scss-docs-start color-variables
 
-// $blue: #0d6efd;
-// $indigo: #6610f2;
-// $purple: #6f42c1;
-// $pink: #d63384;
-// $red: #dc3545;
-// $orange: #fd7e14;
-// $yellow: #ffc107;
-// $green: #198754;
-// $teal: #20c997;
-// $cyan: #0dcaf0;
-
-
-
-// $primary: $orange;
-// $secondary: $gray-600;
-// $success: $green;
-// $info: $cyan;
-// $warning: $yellow;
-// $danger: $red;
-// $light: $gray-100;
-// $dark: $gray-900;
-
-// :export {
-//     primary: $primary;
-//     secondary: $secondary;
-//     success: $success;
-//     info: $info;
-//     warning: $warning;
-//     danger: $danger;
-//     light: $light;
-//     dark: $dark;
-// }
+// 1. color code
+$white: #fff;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black: #000;
+$blue: #0d6efd;
+$indigo: #184b72;
+$purple: #6f42c1;
+$pink: #d63384;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #198754;
+$teal: #20c997;
+$cyan: #0dcaf0;
 
 
-$white: #ffffff;
+//2. set themes color
+$primary: $indigo;
+$secondary: $gray-600;
+$success: $green;
+$info: $cyan;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-100;
+$dark: $gray-900;
 
+
+
+// NO CHANGE: use as bootstrap
 $theme-colors: (
-    "light": #c8d4e8,
-    "dark": #0b0e10,
-    "primary": #184b72,
-    "secondary": #6c757d,
-    "info": #fd435e,
-    "success": #08a058,
-    "warning": #e3c908,
-    "danger": #f30503,
+    "light":$light,
+    "dark":$dark,
+    "primary":$primary,
+    "secondary":$secondary,
+    "info":$info,
+    "success":$success,
+    "warning":$warning,
+    "danger":$danger,
 );
+
+// NO CHANGE: Export for components
+:export {
+    primary: $primary;
+    secondary: $secondary;
+    success: $success;
+    info: $info;
+    warning: $warning;
+    danger: $danger;
+    light: $light;
+    dark: $dark;
+}

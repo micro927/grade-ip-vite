@@ -8,66 +8,47 @@ import {
   // Link,
   // useNavigate,
   // useLocation,
-  // Navigate,
-  // Outlet,
+  Navigate,
+  Outlet,
 } from "react-router-dom";
-// import Layout from "./Layout";
 
 import Welcome from "./components/Welcome";
+import { Error401, Error404 } from './components/ErrorWarning';
 import { Authentication } from "./components/Authentication";
+import AdvisorListCourse from "./components/Advisor/listCourse";
 
-// const Navbar = () => <h1>Navbar</h1>
-// const Atest = () => <h1>TestA</h1>
-// const Btest = () => <h1>bTest</h1>
-// const Ctest = () => <h1>CTest for fac</h1>
-// const Dtest = () => <h1>DTest for fac</h1>
-// const FirstPage = () => <h1>Welcome Please Login</h1>
-// // const Login = () => <h1>Please Login</h1>
-// // const UnAuthPage = () => <h1>แกไม่มีสิทธ์</h1>
+const roleLevel = 3 // loginInfo.role
 
-// var stateRole = 9
-// // 5 = fac, 9 = reg
-
-// function RequireFac() {
-//   let role = 5;
-//   let auth = stateRole >= role
-
-//   return (
-//     auth ? <Outlet />
-//       : <Navigate to='/' />
-//   )
-// }
-
-// function RequireReg() {
-//   let role = 9;
-//   let auth = stateRole >= role
-
-//   return (
-//     auth ? <Outlet />
-//       : <Navigate to='/' />
-//   )
-// }
-
+function roleLeveltoEnter(roleLevelRequired) {
+  const result = roleLevel >= roleLevelRequired
+    ? <Outlet />
+    : <Navigate to='/401' />
+  return result
+}
 
 const root = createRoot(document.getElementById('root'));
+
 root.render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route index element={<Welcome />} />
-        {/* 
-        
-        <Route element={<RequireFac />}>
-          <Route path='/a' element={<Atest />} />
-          <Route path='/b' element={<Btest />} />
-          <Route element={<RequireReg />}>
-            <Route path='/c' element={<Ctest />} />
-            <Route path='/d' element={<Dtest />} />
-          </Route>
+        <Route path='/advisor' element={roleLeveltoEnter(1)} >
+          <Route index element={<AdvisorListCourse />} />
         </Route>
-        <Route path='*' element={<ErrorPage />} />
-        */}
+        <Route path='/department' element={roleLeveltoEnter(2)} >
+          <Route index element={<Welcome />} />
+        </Route>
+        <Route path='/faculty' element={roleLeveltoEnter(3)} >
+          <Route index element={<Welcome />} />
+        </Route>
+        <Route path='/verify' element={roleLeveltoEnter(4)} >
+          <Route index element={<Welcome />} />
+        </Route>
+        <Route path='/summary' element={<Welcome />} />
         <Route path='/authentication' element={<Authentication />} />
+        <Route path='*' element={<Error404 />} />
+        <Route path='401' element={<Error401 />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

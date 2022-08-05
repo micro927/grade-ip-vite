@@ -3,3 +3,14 @@
 .nav-link {
     color: $light;
 }
+
+.welcome-image {
+    height: 400px;
+    width: 100%;
+    background-image: url("../../assets/welcome.jpg");
+    // /* background-attachment: fixed; */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode: darken;
+}
