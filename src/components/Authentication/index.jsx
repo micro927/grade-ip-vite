@@ -18,19 +18,20 @@ const redirectToCmuOauth = () => {
 function Logout() {
     localStorage.removeItem('isLogin')
     localStorage.removeItem('loginInfo')
+    localStorage.removeItem('userToken')
     return (
         window.location.reload())
 }
 
 const Authentication = () => {
-    const isLogin = localStorage.isLogin
+    const isLogin = localStorage.getItem('isLogin')
 
     function DoAuthenticate() {
         const [searchParams] = useSearchParams()
         const cmuCode = searchParams.get("code") ?? false
         if (cmuCode) {
             //axios api
-            const appLoginUrl = import.meta.env.VITE_API_LOGIN_URL
+            const appLoginUrl = (import.meta.env.VITE_API_HOST) + '/login'
             console.log('ยิง AXIOS');
             axios
                 .get(`${appLoginUrl}?code=${cmuCode}`)
@@ -38,13 +39,14 @@ const Authentication = () => {
                     // handle success
                     localStorage.setItem('loginInfo', JSON.stringify(response.data))
                     localStorage.setItem('isLogin', true)
+                    localStorage.setItem('userToken', response.data.userToken)
                     console.log(response.data.cmuitaccount_name);
                     window.location.href = '/'
                 })
                 .catch(function (error) {
                     // handle error
                     console.log(error);
-                    window.location.href = '/404'
+                    window.location.href = '/500'
                 })
         } else {
             redirectToCmuOauth
@@ -61,8 +63,29 @@ const Authentication = () => {
                 </div>
             </AlertLayout>
             :
-            <Navigate to='/' />
+            <Navigate to='/' replace />
     )
 }
 
-export { Authentication, redirectToCmuOauth, Logout }
+const checkUserToken = async () => {
+    const appApiHost = import.meta.env.VITE_API_HOST
+    const userToken = localStorage.getItem('userToken') ?? false
+    let isValid = false
+    if (userToken) {
+        await axios
+            .get(`${appApiHost}/checkusertoken`,
+                {
+                    headers: { 'Authorization': 'Bearer ' + userToken },
+                }
+            )
+            .then(function (response) {
+                isValid = response.data.isAuthorized;
+            })
+            .catch(function (error) {
+                isValid = error.response.data.isAuthorized
+            })
+    }
+    return isValid
+}
+
+export { Authentication, checkUserToken, redirectToCmuOauth, Logout }

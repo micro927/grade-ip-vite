@@ -6,7 +6,7 @@ import './index.scss'
 import MainLayout from '../../layouts/MainLayout'
 
 function goBackHome() {
-    console.log('WRONG PAGE BABY')
+    console.log('BACK TO HOMEPAGE...')
     setTimeout(() => {
         window.location.href = '/'
     }, 5000)
@@ -37,7 +37,7 @@ const Error401 = function Error401() {
         <MainLayout>
             <Container fluid className='py-5 text-center'>
                 <h1>Unauthorized</h1>
-                <h3>ไม่สามารถใช้งานหน้าที่ท่านต้องการได้</h3>
+                <h3>ท่านไม่มีสิทธ์เข้าใช้งานโปรแกรม/ฟังก์ชั่นนี้</h3>
                 <h6>...ระบบกำลังพาท่านกลับไปยังหน้าแรก...</h6>
             </Container>
         </MainLayout>

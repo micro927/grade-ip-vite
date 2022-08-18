@@ -15,7 +15,7 @@ function TestBar() {
                 stepClass='border-info'
                 steps={[
                     {
-                        label: 'อาจารย์ที่ปรึกษา',
+                        label: 'อาจารย์ผู้สอน',
                         subtitle: 'บันทึกลำดับขั้น',
                     },
                     {
@@ -34,7 +34,7 @@ function TestBar() {
             />
             <Row className='w-100 m-0 p-0'>
                 <Col className='text-center'>
-                    <Button href='/advisor' variant='outline-primary'>ไปหน้าบันทึก</Button>
+                    <Button href='/teacher' variant='outline-primary'>ไปหน้าบันทึก</Button>
                 </Col>
                 <Col className='text-center'>
                     <Button href='/department' variant='outline-primary'>ไปหน้ายืนยัน</Button>
