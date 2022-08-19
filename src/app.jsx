@@ -17,7 +17,7 @@ import { Error401, Error404 } from './components/ErrorWarning';
 const isLogin = localStorage.getItem('isLogin')
 const gradeType = localStorage.getItem('gradeType') ?? false
 if (isLogin && !gradeType) {
-    localStorage.setItem('gradeType', 'p')
+    localStorage.setItem('gradeType', 'i')
 }
 
 const VerifyWithRow = (props) => {

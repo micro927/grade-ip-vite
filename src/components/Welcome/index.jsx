@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap'
 import { useState, useContext, useEffect } from 'react'
 import MainLayout from '../../layouts/MainLayout'
-import TestBar from '../StepProgressBar'
+import StepProgressBar from '../StepProgressBar'
 import { AppContext } from '../Provider'
 
 function Welcome() {
@@ -17,15 +17,14 @@ function Welcome() {
     const isLogin = localStorage.getItem('isLogin') ?? false
     const [gradeTypeTitle, setGradeTypeTitle] = useState(gradeType ? gradeType.toUpperCase() : 'I,P')
 
-    function onChangeGradeType(value) {
-        localStorage.setItem('gradeType', value)
-        const gradeTitle = value.toUpperCase()
-        setGradeTypeTitle(gradeTitle)
+    function onChangeGradeType(target) {
+        const grade = target.value
+        if (grade != '') {
+            localStorage.setItem('gradeType', grade)
+            const gradeTitle = grade.toUpperCase()
+            setGradeTypeTitle(gradeTitle)
+        }
     }
-
-    // useEffect(() => {
-    //     setGradeTypeTitle(grade)
-    // }, [])
 
     return (
         <MainLayout>
@@ -35,8 +34,8 @@ function Welcome() {
                     <h3 className="text-white">ภาคการศึกษา {AppThisSemester} / {AppThisYear}</h3>
                     <Row>
                         <Col lg="12">
-                            {isLogin && <Form.Select onChange={e => onChangeGradeType(e.target.value)}>
-                                <option disabled value="">เลือกประเภทการส่งลำดับขั้น</option>
+                            {isLogin && <Form.Select onChange={e => onChangeGradeType(e.target)}>
+                                <option value="">เลือกประเภทการส่งลำดับขั้นที่นี่ ...</option>
                                 <option value="i">ส่งลำดับขั้นแก้ไขอักษร I</option>
                                 <option value="p">ส่งลำดับขั้นแก้ไขอักษร P</option>
                             </Form.Select>}
@@ -48,10 +47,10 @@ function Welcome() {
             <div className='text-center mt-5'>
                 <h3 className='text-dark'>ลำดับขั้นตอนการส่งลำดับขั้นแก้ไขอักษร I,P</h3>
             </div>
-            <Container>
-                <TestBar />
+            <Container className='mt-5'>
+                <StepProgressBar />
             </Container>
-        </MainLayout >
+        </MainLayout>
     )
 }
 

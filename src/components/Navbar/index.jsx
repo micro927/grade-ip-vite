@@ -20,7 +20,7 @@ function AppNavbar() {
     const gradeTypeTitleinNav = (localStorage.getItem('gradeType') === null ? 'I,P' : localStorage.getItem('gradeType').toUpperCase())
 
     const { AppThisSemester, AppThisYear } = useContext(AppContext)
-    const semesterYear = AppThisSemester + AppThisYear
+    const semesterYearTitle = AppThisSemester + '/' + AppThisYear
 
     function handleLoginClick() {
         redirectToCmuOauth()
@@ -36,7 +36,7 @@ function AppNavbar() {
                 <Container fluid className='justify-content-between'>
                     <Navbar.Brand href={location == '/' ? '#' : '/'}>
                         <img src={cmuLogo} alt='CMU logo' width='30' height='30' className='me-2' />
-                        Online {gradeTypeTitleinNav} Grade {semesterYear}
+                        Online {gradeTypeTitleinNav} Grade {semesterYearTitle}
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
