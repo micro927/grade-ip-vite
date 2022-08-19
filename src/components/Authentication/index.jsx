@@ -19,6 +19,7 @@ function Logout() {
     localStorage.removeItem('isLogin')
     localStorage.removeItem('loginInfo')
     localStorage.removeItem('userToken')
+    localStorage.removeItem('gradeType')
     return (
         window.location.reload())
 }

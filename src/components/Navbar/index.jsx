@@ -1,3 +1,5 @@
+import './index.scss'
+import { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
     Container,
@@ -5,17 +7,20 @@ import {
     Navbar,
     Button
 } from 'react-bootstrap'
-import './index.scss'
+import { AppContext } from '../Provider'
 import cmuLogo from '../../assets/cmu.png'
 import { redirectToCmuOauth, Logout } from '../Authentication'
 
 function AppNavbar() {
     const location = useLocation().pathname;
-    const semesterYear = "2/65"
     const isLogin = localStorage.getItem('isLogin') ?? false
     const loginInfo = isLogin && JSON.parse(localStorage.getItem('loginInfo'))
     const fullNameTh = loginInfo.firstname_TH + ' ' + loginInfo.lastname_TH
-    const roleLevel = 3 // loginInfo.role
+    const roleLevel = JSON.parse(localStorage.getItem('loginInfo'))?.role ?? 0
+    const gradeTypeTitleinNav = (localStorage.getItem('gradeType') === null ? 'I,P' : localStorage.getItem('gradeType').toUpperCase())
+
+    const { AppThisSemester, AppThisYear } = useContext(AppContext)
+    const semesterYear = AppThisSemester + AppThisYear
 
     function handleLoginClick() {
         redirectToCmuOauth()
@@ -31,7 +36,7 @@ function AppNavbar() {
                 <Container fluid className='justify-content-between'>
                     <Navbar.Brand href={location == '/' ? '#' : '/'}>
                         <img src={cmuLogo} alt='CMU logo' width='30' height='30' className='me-2' />
-                        Online I,P Grade {semesterYear}
+                        Online {gradeTypeTitleinNav} Grade {semesterYear}
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>

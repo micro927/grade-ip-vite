@@ -8,19 +8,17 @@ import {
     Outlet,
 } from "react-router-dom";
 
-import Welcome from "./components/Welcome";
-import { Error401, Error404 } from './components/ErrorWarning';
+import { AppContextProvider } from './components/Provider';
 import { Authentication, checkUserToken } from "./components/Authentication";
+import Welcome from "./components/Welcome";
 import TeacherListCourse from "./components/Teacher/listCourse"
+import { Error401, Error404 } from './components/ErrorWarning';
 
-const AppThisSemester = import.meta.env.VITE_THIS_SEMESTER
-const AppThisYear = import.meta.env.VITE_THIS_YEAR
-const context = {
-    AppThisSemester,
-    AppThisYear
+const isLogin = localStorage.getItem('isLogin')
+const gradeType = localStorage.getItem('gradeType') ?? false
+if (isLogin && !gradeType) {
+    localStorage.setItem('gradeType', 'p')
 }
-const AppContext = React.createContext();
-
 
 const VerifyWithRow = (props) => {
     const roleValidation = JSON.parse(localStorage.getItem('loginInfo'))?.role ?? 0
@@ -47,7 +45,7 @@ const App = () => {
     }, [tokenValidation]);
 
     return (
-        <AppContext.Provider value={context}>
+        <AppContextProvider>
             <BrowserRouter>
                 <Routes>
                     <Route index element={<Welcome />} />
@@ -69,8 +67,8 @@ const App = () => {
                     <Route path='401' element={<Error401 />} />
                 </Routes>
             </BrowserRouter>
-        </AppContext.Provider>
+        </AppContextProvider>
     )
 }
-export { AppContext }
+
 export default App
