@@ -11,7 +11,8 @@ import {
 import { AppContextProvider } from './components/Provider';
 import { Authentication, checkUserToken } from "./components/Authentication";
 import Welcome from "./components/Welcome";
-import TeacherListCourse from "./components/Teacher/listCourse"
+import TeacherListCourse from "./components/Teacher/CourseList"
+import FillGrade from './components/Teacher/FillGrade';
 import { Error401, Error404 } from './components/ErrorWarning';
 
 const isLogin = localStorage.getItem('isLogin')
@@ -51,6 +52,7 @@ const App = () => {
                     <Route index element={<Welcome />} />
                     <Route path='/teacher' element={<VerifyWithRow isValid={tokenValidation} level={1} />} >
                         <Route index element={<TeacherListCourse />} />
+                        <Route path="fill/:classId" element={<FillGrade />} />
                     </Route>
                     <Route path='/department' element={<VerifyWithRow isValid={tokenValidation} level={2} />} >
                         <Route index element={<Welcome />} />

@@ -1,0 +1,9 @@
+@import '../../styles/_themes.scss';
+
+.tableHead {
+    border-bottom: 2px solid $gray-600;
+}
+
+.tableBody td {
+    vertical-align: bottom;
+}

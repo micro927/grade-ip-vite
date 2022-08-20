@@ -83,7 +83,9 @@ const checkUserToken = async () => {
                 isValid = response.data.isAuthorized;
             })
             .catch(function (error) {
-                isValid = error.response.data.isAuthorized
+                console.error('API CHECK ERROR : ' + error.code)
+                isValid = error.response.data?.isAuthorized || false
+                // window.location.href = './'
             })
     }
     return isValid

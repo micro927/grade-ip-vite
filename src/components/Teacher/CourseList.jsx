@@ -1,9 +1,11 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 import MainLayout from '../../layouts/MainLayout'
 import * as Icon from 'react-bootstrap-icons';
+import './index.scss'
+
 import {
-    Container,
     Table,
     Button,
     ButtonGroup,
@@ -18,15 +20,13 @@ const ListCourse = () => {
     const getCourseForTeacher = async () => {
         const appApiHost = import.meta.env.VITE_API_HOST
         let result
-        console.log(`${appApiHost}/courses?type=${gradeType}`)
         await axios
-            .get(`${appApiHost}/courses`, {
+            .get(`${appApiHost}/teacher/courselist`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
                 params: { gradeType: gradeType }
             })
             .then(async (response) => {
                 result = await response.data
-                console.log(result)
                 setCourseList(result)
             })
             .catch((error) => {
@@ -35,7 +35,8 @@ const ListCourse = () => {
                     window.location.href = '/' + errorStatus
                 }
                 else {
-                    result = ['Something WRONG']
+                    console.error('API ERROR : ' + error.code)
+                    result = []
                     setCourseList(result)
                 }
             })
@@ -49,20 +50,20 @@ const ListCourse = () => {
         <MainLayout>
             <div className='m-4'>
                 <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
-                <Table bordered hover className='mt-4'>
-                    <thead>
+                {courseList.length ? <Table responsive='xl' bordered hover className='mt-4'>
+                    <thead className='tableHead'>
                         <tr className='text-center'>
                             <th>ที่</th>
                             <th>รหัสกระบวนวิชา</th>
                             <th>ตอนบรรยาย</th>
                             <th>ตอนปฏิบัติการ</th>
                             <th>ชื่อกระบวนวิชา</th>
-                            <th>ภาคการศึกษาที่ได้รับอักษร {gradeTypeTitle}</th>
-                            <th>จำนวนนักศึกษา</th>
+                            <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
+                            <th>แก้ไขอักษร<br />ลำดับขั้นแล้ว (ราย)</th>
                             <th>การดำเนินการ</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className='tableBody'>
                         {courseList.map((course, index) => {
                             const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                             const rowNumber = index + 1
@@ -75,20 +76,24 @@ const ListCourse = () => {
                                     <td className='text-center'>{course.seclab}</td>
                                     <td>{course.course_title}</td>
                                     <td className='text-center'>{courseTermTitle}</td>
-                                    <td></td>
+                                    <td className='text-center'>{course.filled_student + "/" + course.all_student}</td>
                                     <td>
-                                        <ButtonGroup className="mb-2">
-                                            <Button variant='outline-primary'><Icon.FileExcelFill /> กรอกลำดับขั้น</Button>
-                                            <Button variant='outline-secondary'>Download Excel</Button>
-                                            <Button variant='outline-success'>Upload Excel</Button>
-                                            <Button variant='outline-primary'>CMR 54</Button>
+                                        <ButtonGroup>
+                                            <Button variant='outline-primary'><Link to={'fill/' + course.class_id} style={{ textDecoration: 'none' }}><Icon.KeyboardFill /> กรอกลำดับขั้น</Link></Button>
+                                            <Button variant='outline-secondary'><Icon.FileEarmarkArrowDown /> Download Excel</Button>
+                                            <Button variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</Button>
+                                            <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
                                         </ButtonGroup>
                                     </td>
                                 </tr>
                             )
                         })}
                     </tbody>
-                </Table>
+                </Table> : <div className='text-center mt-4'>
+                    <hr />
+                    <h2 >ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร {gradeTypeTitle}</h2>
+                    <Button variant='outline-secondary' href='./'>กลับไปหน้าแรก</Button>
+                </div>}
             </div>
         </MainLayout>
     )
