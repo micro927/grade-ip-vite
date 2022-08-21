@@ -67,6 +67,7 @@ const ListCourse = () => {
                         {courseList.map((course, index) => {
                             const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                             const rowNumber = index + 1
+                            const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
 
                             return (
                                 <tr key={course.class_id} >
@@ -76,7 +77,7 @@ const ListCourse = () => {
                                     <td className='text-center'>{course.seclab}</td>
                                     <td>{course.course_title}</td>
                                     <td className='text-center'>{courseTermTitle}</td>
-                                    <td className='text-center'>{course.filled_student + "/" + course.all_student}</td>
+                                    <td className={'text-center ' + studntAmountTextColor}>{course.filled_student + "/" + course.all_student}</td>
                                     <td>
                                         <ButtonGroup>
                                             <Button variant='outline-primary'><Link to={'fill/' + course.class_id} style={{ textDecoration: 'none' }}><Icon.KeyboardFill /> กรอกลำดับขั้น</Link></Button>

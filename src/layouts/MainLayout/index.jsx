@@ -13,7 +13,7 @@ function MainLayout(props) {
                 <Navbar />
             </header>
             <main>
-                <Container fluid className='px-0 py-0'>
+                <Container fluid className='px-0 pt-0 pb-5'>
                     {props.children}
                 </Container>
             </main>
