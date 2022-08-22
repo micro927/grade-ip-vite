@@ -5,6 +5,7 @@ import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
 import {
     Table,
+    Form,
     Button,
     ButtonGroup,
 } from 'react-bootstrap';
@@ -73,7 +74,14 @@ function FillGrade() {
                                     <td className='text-center'>{student.name}</td>
                                     <td className='text-center'>{student.surname}</td>
                                     <td className='text-center'>{student.grade_old}</td>
-                                    <td>{student.grade_new}</td>
+                                    <td>
+                                        <Form.Select aria-label="Default select example">
+                                            <option>Open this select menu</option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                        </Form.Select>
+                                    </td>
                                     <td className='text-center'>{student.fill_itaccountname}</td>
                                     <td className=''></td>
                                 </tr>
