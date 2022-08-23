@@ -1,21 +1,27 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
-import MainLayout from '../../layouts/MainLayout'
-import * as Icon from 'react-bootstrap-icons';
 import './index.scss'
-
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import * as Icon from 'react-bootstrap-icons';
 import {
     Table,
     Button,
     ButtonGroup,
+    Container,
+
 } from 'react-bootstrap';
+import axios from 'axios';
+
+import MainLayout from '../../layouts/MainLayout'
+import NodataBox from '../NoDataBox';
+
+
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
+
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
-
+    const navigate = useNavigate()
 
     const getCourseForTeacher = async () => {
         const appApiHost = import.meta.env.VITE_API_HOST
@@ -41,6 +47,11 @@ const ListCourse = () => {
                 }
             })
     }
+
+    function onClickFillMenu(classId) {
+        navigate('fill/' + classId)
+    }
+
 
     useEffect(() => {
         getCourseForTeacher()
@@ -80,7 +91,7 @@ const ListCourse = () => {
                                     <td className={'text-center ' + studntAmountTextColor}>{course.filled_student + "/" + course.all_student}</td>
                                     <td>
                                         <ButtonGroup>
-                                            <Button variant='outline-primary'><Link to={'fill/' + course.class_id} style={{ textDecoration: 'none' }}><Icon.KeyboardFill /> กรอกลำดับขั้น</Link></Button>
+                                            <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
                                             <Button variant='outline-secondary'><Icon.FileEarmarkArrowDown /> Download Excel</Button>
                                             <Button variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</Button>
                                             <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
@@ -90,11 +101,7 @@ const ListCourse = () => {
                             )
                         })}
                     </tbody>
-                </Table> : <div className='text-center mt-4'>
-                    <hr />
-                    <h2 >ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร {gradeTypeTitle}</h2>
-                    <Button variant='outline-secondary' href='./'>กลับไปหน้าแรก</Button>
-                </div>}
+                </Table> : <NodataBox msg={"ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร" + gradeTypeTitle} />}
             </div>
         </MainLayout>
     )

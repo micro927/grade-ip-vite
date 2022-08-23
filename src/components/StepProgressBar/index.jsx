@@ -43,7 +43,7 @@ function StepProgressBar() {
                 <ul className="progress-stepper">
                     {stepContent.map(step => {
                         return (
-                            <li className="d-flex flex-column justify-content-between align-items-center">
+                            <li key={step.label} className="d-flex flex-column justify-content-between align-items-center">
                                 <h5 className='text-dark'>{step.label}</h5>
                                 <h6 className="">{step.subtitle}</h6>
                                 <Button variant='outline-dark' className="" href={step.to} disabled={role < step.levelRequire}>{step.button}</Button>

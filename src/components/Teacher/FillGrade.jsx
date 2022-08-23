@@ -1,30 +1,44 @@
+import './index.scss'
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 import {
     Table,
     Form,
     Button,
     ButtonGroup,
+    Stack,
+    Row,
+    Col
 } from 'react-bootstrap';
+import NodataBox from '../NoDataBox';
 
 function FillGrade() {
+    const gradeType = localStorage.getItem('gradeType') ?? false
+    const gradeTypeTitle = gradeType.toUpperCase()
     const params = useParams()
+    const appApiHost = import.meta.env.VITE_API_HOST
     const classId = params.classId
     const [studentGradeList, setstudentGradeList] = useState([]);
+    const [courseDetail, setCourseDetail] = useState([]);
+
+    const gradeOption = [
+        ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
+        ['S', 'U']
+    ]
 
     const getStudentGrade = async (classId) => {
-        // const gradeType = localStorage.getItem('gradeType') ?? false
-        const appApiHost = import.meta.env.VITE_API_HOST
+
         let result
         await axios
             .get(`${appApiHost}/teacher/fill/${classId}`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
             })
             .then(async (response) => {
-                console.log(response.data)
+                // console.log(response.data)
                 result = await response.data
                 setstudentGradeList(result)
             })
@@ -41,13 +55,50 @@ function FillGrade() {
             })
     }
 
+    const getCourseDetail = async (classId) => {
+        let result
+        await axios
+            .get(`${appApiHost}/teacher/coursedetail/${classId}`, {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+            })
+            .then(async (response) => {
+                // console.log(response.data)
+                result = await response.data
+                setCourseDetail(result)
+            })
+            .catch((error) => {
+                const errorStatus = error.response.status
+                if (errorStatus == 403) {
+                    window.location.href = '/' + errorStatus
+                }
+                else {
+                    console.error('API ERROR : ' + error.code)
+                    result = []
+                    setCourseDetail(result)
+                }
+            })
+    }
+
+    const handleClickConfirm = () => {
+        Swal.fire('TEST')
+    }
+
+
+
     useEffect(() => {
         getStudentGrade(classId)
+        getCourseDetail(classId)
     }, []);
 
     return (
         <MainLayout>
             <div className='m-4'>
+                <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
+                <div className='text-secondary d-flex justify-content-between'>
+                    <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab})  ${courseDetail.course_title}`}</h4>
+                    <h4>ภาคการศึกษาที่ได้รับเกรด P 1/2565</h4>
+                </div>
+
                 {studentGradeList.length ? <Table responsive='xl' bordered hover className='mt-4'>
                     <thead className='tableHead'>
                         <tr className='text-center'>
@@ -55,6 +106,7 @@ function FillGrade() {
                             <th>รหัสนักศึกษา</th>
                             <th>ชื่อ</th>
                             <th>สกุล</th>
+                            <th>สถานะการลงทะเบียน</th>
                             <th>ลำดับขั้นเดิม</th>
                             <th>ลำดับขั้นที่ได้รับ</th>
                             <th>บันทึกลำดับขั้นโดย</th>
@@ -73,13 +125,16 @@ function FillGrade() {
                                     <td className='text-center'>{student.student_id}</td>
                                     <td className='text-center'>{student.name}</td>
                                     <td className='text-center'>{student.surname}</td>
+                                    <td className='text-center'>{student.enroll_status}</td>
                                     <td className='text-center'>{student.grade_old}</td>
                                     <td>
-                                        <Form.Select aria-label="Default select example">
-                                            <option>Open this select menu</option>
-                                            <option value="1">One</option>
-                                            <option value="2">Two</option>
-                                            <option value="3">Three</option>
+                                        <Form.Select>
+                                            {gradeOption[courseDetail.grade_id].map((grade) => {
+                                                return (
+                                                    <option key={grade} value={grade}>{grade}</option>
+                                                )
+
+                                            })}
                                         </Form.Select>
                                     </td>
                                     <td className='text-center'>{student.fill_itaccountname}</td>
@@ -88,9 +143,23 @@ function FillGrade() {
                             )
                         })}
                     </tbody>
-                </Table> : '---'}
+                </Table> : <NodataBox msg='Error' />}
+                <hr />
+                <Row className=' justify-content-end'>
+                    <Col sm={3}>
+                        <div className='d-grid'>
+                            <Button variant='success' onClick={handleClickConfirm}>บันทึกลำดับขั้น</Button>
+                        </div>
+                    </Col>
+                    <Col sm={3}>
+                        <div className='d-grid'>
+                            <Button variant='outline-secondary'>กลับหน้าแรก</Button>
+                        </div>
+                    </Col>
+                </Row>
+
             </div>
-        </MainLayout >
+        </MainLayout>
     )
 }
 

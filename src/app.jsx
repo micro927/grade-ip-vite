@@ -21,19 +21,20 @@ if (isLogin && !gradeType) {
     localStorage.setItem('gradeType', 'i')
 }
 
-const VerifyWithRow = (props) => {
-    const roleValidation = JSON.parse(localStorage.getItem('loginInfo'))?.role ?? 0
-    return props.isValid || true
-        ? (roleValidation >= props.level
-            ?
-            <Outlet />
-            : <Navigate to='/401' />)
-        : <Navigate to='/' />
-
-}
-
 const App = () => {
     const [tokenValidation, setTokenValidation] = useState()
+
+    const VerifyWithRow = (props) => {
+        const roleValidation = JSON.parse(localStorage.getItem('loginInfo'))?.role ?? 0
+        return props.isValid || true
+            ? (roleValidation >= props.level
+                ?
+                <Outlet />
+                : <Navigate to='/401' />)
+            : <Navigate to='/' />
+
+    }
+
     useEffect(() => {
         (async () => {
             await checkUserToken().then(
