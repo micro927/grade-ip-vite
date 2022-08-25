@@ -1,6 +1,6 @@
 import './index.scss'
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
@@ -16,22 +16,36 @@ import {
 } from 'react-bootstrap';
 import NodataBox from '../NoDataBox';
 
+function GradeSelect(props) {
+    const [isChangeGrade, setIsChangeGrade] = useState('')
+    const gradeOptionList = [
+        ['', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
+        ['', 'S', 'U']
+    ]
+    const gradeOption = gradeOptionList[props.gradeId ?? 0]
+    // let gradeSelectClass = ''
+    function handleGradeChange(e) {
+        setIsChangeGrade(e.target.value == (props.gradeNow ?? '') ? '' : 'border-primary')
+        props.ongradeChange()
+    }
+    return (
+        <Form.Select className={isChangeGrade} onChange={handleGradeChange} defaultValue={props.gradeNow}>
+            {gradeOption.map((grade) => <option key={grade} value={grade}>{grade}</option>)}
+        </Form.Select>
+    )
+}
+
 function FillGrade() {
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const params = useParams()
     const appApiHost = import.meta.env.VITE_API_HOST
     const classId = params.classId
-    const [studentGradeList, setstudentGradeList] = useState([]);
+    const [studentList, setstudentList] = useState([]);
     const [courseDetail, setCourseDetail] = useState([]);
-
-    const gradeOption = [
-        ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
-        ['S', 'U']
-    ]
+    const navigate = useNavigate()
 
     const getStudentGrade = async (classId) => {
-
         let result
         await axios
             .get(`${appApiHost}/teacher/fill/${classId}`, {
@@ -40,7 +54,7 @@ function FillGrade() {
             .then(async (response) => {
                 // console.log(response.data)
                 result = await response.data
-                setstudentGradeList(result)
+                setstudentList(result)
             })
             .catch((error) => {
                 const errorStatus = error.response.status
@@ -50,7 +64,7 @@ function FillGrade() {
                 else {
                     console.error('API ERROR : ' + error.code)
                     result = []
-                    setstudentGradeList(result)
+                    setstudentList(result)
                 }
             })
     }
@@ -80,14 +94,20 @@ function FillGrade() {
     }
 
     const handleClickConfirm = () => {
-        Swal.fire('TEST')
+        Swal.fire({
+            title: 'TEST',
+            showCancelButton: true,
+        })
+    }
+
+    const handleClickBack = () => {
+        navigate(-1)
     }
 
 
-
     useEffect(() => {
-        getStudentGrade(classId)
         getCourseDetail(classId)
+        getStudentGrade(classId)
     }, []);
 
     return (
@@ -95,11 +115,11 @@ function FillGrade() {
             <div className='m-4'>
                 <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
                 <div className='text-secondary d-flex justify-content-between'>
-                    <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab})  ${courseDetail.course_title}`}</h4>
+                    <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab}) |  ${courseDetail.course_title}`}</h4>
                     <h4>ภาคการศึกษาที่ได้รับเกรด P 1/2565</h4>
                 </div>
 
-                {studentGradeList.length ? <Table responsive='xl' bordered hover className='mt-4'>
+                {studentList.length ? <Table responsive='xl' bordered hover className='mt-2'>
                     <thead className='tableHead'>
                         <tr className='text-center'>
                             <th>ที่</th>
@@ -114,7 +134,7 @@ function FillGrade() {
                         </tr>
                     </thead>
                     <tbody className='tableBody'>
-                        {studentGradeList.map((student, index) => {
+                        {studentList.map((student, index) => {
                             {/* const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                             const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : '' */}
                             const rowNumber = index + 1
@@ -128,14 +148,7 @@ function FillGrade() {
                                     <td className='text-center'>{student.enroll_status}</td>
                                     <td className='text-center'>{student.grade_old}</td>
                                     <td>
-                                        <Form.Select>
-                                            {gradeOption[courseDetail.grade_id].map((grade) => {
-                                                return (
-                                                    <option key={grade} value={grade}>{grade}</option>
-                                                )
-
-                                            })}
-                                        </Form.Select>
+                                        <GradeSelect ongradeChange={() => console.log('555555555555555555555')} gradeOption={courseDetail.grade_id} gradeNow={student.grade_new} />
                                     </td>
                                     <td className='text-center'>{student.fill_itaccountname}</td>
                                     <td className=''></td>
@@ -143,7 +156,7 @@ function FillGrade() {
                             )
                         })}
                     </tbody>
-                </Table> : <NodataBox msg='Error' />}
+                </Table> : <NodataBox msg='No data' />}
                 <hr />
                 <Row className=' justify-content-end'>
                     <Col sm={3}>
@@ -153,7 +166,7 @@ function FillGrade() {
                     </Col>
                     <Col sm={3}>
                         <div className='d-grid'>
-                            <Button variant='outline-secondary'>กลับหน้าแรก</Button>
+                            <Button variant='outline-secondary' onClick={handleClickBack}>กลับไปก่อนหน้า</Button>
                         </div>
                     </Col>
                 </Row>
