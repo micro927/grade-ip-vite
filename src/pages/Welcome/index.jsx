@@ -8,8 +8,8 @@ import {
 } from 'react-bootstrap'
 import { useState, useContext, useEffect } from 'react'
 import MainLayout from '../../layouts/MainLayout'
-import StepProgressBar from '../StepProgressBar'
-import { AppContext } from '../Provider'
+import StepProgressBar from '../../components/StepProgressBar'
+import { AppContext } from '../../components/Provider'
 
 function Welcome() {
     const { AppThisSemester, AppThisYear } = useContext(AppContext)

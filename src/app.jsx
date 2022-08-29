@@ -10,10 +10,10 @@ import {
 
 import { AppContextProvider } from './components/Provider';
 import { Authentication, checkUserToken } from "./components/Authentication";
-import Welcome from "./components/Welcome";
-import TeacherListCourse from "./components/Teacher/CourseList"
-import FillGrade from './components/Teacher/FillGrade';
-import { Error401, Error404 } from './components/ErrorWarning';
+import Welcome from './pages/Welcome';
+import TeacherListCourse from "./pages/Teacher/CourseList"
+import FillGrade from './pages/Teacher/FillGrade';
+import { Error401, Error404 } from './pages/ErrorWarning';
 
 const isLogin = localStorage.getItem('isLogin')
 const gradeType = localStorage.getItem('gradeType') ?? false

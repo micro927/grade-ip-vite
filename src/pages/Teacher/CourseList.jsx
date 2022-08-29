@@ -12,7 +12,8 @@ import {
 import axios from 'axios';
 
 import MainLayout from '../../layouts/MainLayout'
-import NodataBox from '../NoDataBox';
+import NoDataBox from '../../components/NoDataBox';
+
 
 
 
@@ -101,7 +102,7 @@ const ListCourse = () => {
                             )
                         })}
                     </tbody>
-                </Table> : <NodataBox msg={"ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร" + gradeTypeTitle} />}
+                </Table> : <NoDataBox msg={"ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร" + gradeTypeTitle} />}
             </div>
         </MainLayout>
     )

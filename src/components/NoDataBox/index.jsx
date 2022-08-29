@@ -1,6 +1,6 @@
 import { Container, Button } from "react-bootstrap"
 
-const NodataBox = (props) => {
+const NoDataBox = (props) => {
     const msg = props.msg
     return (
         <Container className='text-center py-5'>
@@ -12,4 +12,4 @@ const NodataBox = (props) => {
     )
 }
 
-export default NodataBox
+export default NoDataBox

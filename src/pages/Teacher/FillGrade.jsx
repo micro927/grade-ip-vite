@@ -14,7 +14,7 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
-import NodataBox from '../NoDataBox';
+import NoDataBox from '../../components/NoDataBox';
 
 function GradeSelect(props) {
     const [isChangeGrade, setIsChangeGrade] = useState('')
@@ -156,7 +156,7 @@ function FillGrade() {
                             )
                         })}
                     </tbody>
-                </Table> : <NodataBox msg='No data' />}
+                </Table> : <NoDataBox msg='No data' />}
                 <hr />
                 <Row className=' justify-content-end'>
                     <Col sm={3}>
