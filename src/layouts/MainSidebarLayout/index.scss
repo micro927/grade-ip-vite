@@ -1,0 +1,11 @@
+@import '../../styles/_themes.scss';
+
+.sidebar {
+    max-height: calc(100vh - 9rem);
+    overflow-y: auto;
+}
+
+.sidebarBox {
+    border-right: 1px solid $gray-500;
+    min-height: calc(100vh - 9rem);
+}

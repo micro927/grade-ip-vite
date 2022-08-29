@@ -6,8 +6,8 @@ import {
     Row,
     Col
 } from 'react-bootstrap'
-import { useState, useContext, useEffect } from 'react'
-import MainLayout from '../../layouts/MainLayout'
+import { useState, useContext } from 'react'
+import WelcomeLayout from '../../layouts/WelcomeLayout'
 import StepProgressBar from '../../components/StepProgressBar'
 import { AppContext } from '../../components/Provider'
 
@@ -27,7 +27,7 @@ function Welcome() {
     }
 
     return (
-        <MainLayout>
+        <WelcomeLayout>
             <Container fluid className='welcome-image text-center d-flex flex-column justify-content-center align-items-center'>
                 <div>
                     <h2 className="text-white">ส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
@@ -50,7 +50,7 @@ function Welcome() {
             <Container className='mt-5'>
                 <StepProgressBar />
             </Container>
-        </MainLayout>
+        </WelcomeLayout>
     )
 }
 

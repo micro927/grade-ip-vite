@@ -1,22 +1,18 @@
-import './index.scss'
-
 import {
     Container,
 } from 'react-bootstrap'
 
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-function MainLayout(props) {
+function WelcomeLayout(props) {
     return (
         <>
             <header>
                 <Navbar />
             </header>
             <main>
-                <Container fluid>
-                    <div className='m-4'>
-                        {props.children}
-                    </div>
+                <Container fluid className='px-0'>
+                    {props.children}
                 </Container>
             </main>
             <footer>
@@ -26,4 +22,4 @@ function MainLayout(props) {
     )
 }
 
-export default MainLayout
+export default WelcomeLayout
