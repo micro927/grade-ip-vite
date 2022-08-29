@@ -1,7 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table } from "react-bootstrap";
+import { Table, Button, ButtonGroup } from "react-bootstrap";
+import * as Icon from 'react-bootstrap-icons';
+import axios from 'axios';
 import MainLayout from "../../layouts/MainLayout";
 import NoDataBox from "../../components/NoDataBox"
 
@@ -48,7 +50,7 @@ const DepartmentSubmit = () => {
     return (
         <MainLayout>
             <h2>ยืนยันลำดับขั้นแก้ไขอักษร {gradeTypeTitle} ระดับภาควิชา</h2>
-            {courseList.length ? <Table responsive='xl' bordered hover className='mt-4'>
+            {courseList.length ? <Table size='sm' responsive='xl' bordered hover className='mt-4'>
                 <thead className='tableHead'>
                     <tr className='text-center'>
                         <th>ที่</th>
@@ -57,7 +59,7 @@ const DepartmentSubmit = () => {
                         <th>ตอนปฏิบัติการ</th>
                         <th>ชื่อกระบวนวิชา</th>
                         <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                        <th>แก้ไขอักษร<br />ลำดับขั้นแล้ว (ราย)</th>
+                        <th>ลำดับการดำเนินการ</th>
                         <th>การดำเนินการ</th>
                     </tr>
                 </thead>
