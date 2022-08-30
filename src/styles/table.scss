@@ -1,0 +1,9 @@
+@import 'themes';
+
+.tableHead {
+    border-bottom: 3px solid $gray-600;
+}
+
+.tableBody td {
+    vertical-align: middle;
+}

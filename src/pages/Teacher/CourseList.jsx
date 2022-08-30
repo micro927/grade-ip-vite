@@ -1,4 +1,4 @@
-import './index.scss'
+import '../../styles/table.scss'
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import * as Icon from 'react-bootstrap-icons';

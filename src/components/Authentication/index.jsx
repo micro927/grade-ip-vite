@@ -33,7 +33,7 @@ const Authentication = () => {
         if (cmuCode) {
             //axios api
             const appLoginUrl = (import.meta.env.VITE_API_HOST) + '/login'
-            console.log('ยิง AXIOS');
+            // console.log('ยิง AXIOS');
             axios
                 .get(`${appLoginUrl}?code=${cmuCode}`)
                 .then(function (response) {

@@ -1,4 +1,4 @@
-import './index.scss'
+import '../../styles/table.scss'
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";

@@ -1,4 +1,4 @@
-
+import '../../styles/table.scss'
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, ButtonGroup } from "react-bootstrap";
@@ -6,9 +6,6 @@ import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
 import MainLayout from "../../layouts/MainLayout";
 import NoDataBox from "../../components/NoDataBox"
-
-
-
 
 
 const DepartmentSubmit = () => {
@@ -50,48 +47,55 @@ const DepartmentSubmit = () => {
     return (
         <MainLayout>
             <h2>ยืนยันลำดับขั้นแก้ไขอักษร {gradeTypeTitle} ระดับภาควิชา</h2>
-            {courseList.length ? <Table size='sm' responsive='xl' bordered hover className='mt-4'>
+            {courseList.length ? <Table size='sm' hover responsive='xl' className='mt-4'>
                 <thead className='tableHead'>
                     <tr className='text-center'>
                         <th>ที่</th>
-                        <th>รหัสกระบวนวิชา</th>
-                        <th>ตอนบรรยาย</th>
-                        <th>ตอนปฏิบัติการ</th>
+                        <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
                         <th>ชื่อกระบวนวิชา</th>
                         <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                        <th>ลำดับการดำเนินการ</th>
+                        <th>สถานะการกรอก<br />อักษรลำดับขั้น</th>
+                        <th>ผู้กรอก<br />อักษรลำดับขั้น</th>
+                        <th>สถานะการยืนยัน<br />ระดับภาควิชา</th>
+                        <th>ผู้ยืนยัน<br />ระดับภาควิชา</th>
                         <th>การดำเนินการ</th>
+
                     </tr>
                 </thead>
                 <tbody className='tableBody'>
                     {courseList.map((course, index) => {
-                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                         const rowNumber = index + 1
+                        const courseLecLab = course.courseno + ' (' + course.seclec + '-' + course.seclab + ')'
+                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
+                        const isfilled = course.filled_student === course.all_student ? 'text-success' : ''
                         const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
+                        {/* const actionStatus =  */ }
 
                         return (
                             <tr key={course.class_id} >
                                 <td className='text-center'>{rowNumber}</td>
-                                <td className='text-center'>{course.courseno}</td>
-                                <td className='text-center'>{course.seclec}</td>
-                                <td className='text-center'>{course.seclab}</td>
+                                <td className='text-center'>{courseLecLab}</td>
                                 <td>{course.course_title}</td>
                                 <td className='text-center'>{courseTermTitle}</td>
-                                <td className={'text-center ' + studntAmountTextColor}>{course.filled_student + "/" + course.all_student}</td>
+                                <td className={'text-center ' + studntAmountTextColor}>กรอกแล้ว {course.filled_student + "/" + course.all_student} ราย</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <td>
-                                    <ButtonGroup>
-                                        <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
+                                    <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> ยืนยันลำดับขั้นกระบวนวิชานี้</Button>
+                                    {/* <ButtonGroup>
                                         <Button variant='outline-secondary'><Icon.FileEarmarkArrowDown /> Download Excel</Button>
                                         <Button variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</Button>
                                         <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
-                                    </ButtonGroup>
+                                    </ButtonGroup> */}
                                 </td>
                             </tr>
                         )
                     })}
                 </tbody>
-            </Table> : <NoDataBox msg={"ไม่พบกระบวนวิชาที่ต้องยืนยันลำดับขั้นแก้ไขอักษร" + gradeTypeTitle} />}
-        </MainLayout>
+            </Table> : <NoDataBox msg={"ไม่พบกระบวนวิชาที่ต้องยืนยันลำดับขั้นแก้ไขอักษร" + gradeTypeTitle} />
+            }
+        </MainLayout >
     )
 }
 

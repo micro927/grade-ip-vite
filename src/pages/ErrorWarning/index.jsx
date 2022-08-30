@@ -2,17 +2,16 @@ import { useEffect } from 'react'
 import {
     Container,
 } from 'react-bootstrap'
-import './index.scss'
 import MainLayout from '../../layouts/MainLayout'
 
 function goBackHome() {
     console.log('BACK TO HOMEPAGE...')
     setTimeout(() => {
         window.location.href = '/'
-    }, 5000)
+    }, 10000)
 }
 
-const Error404 = function Error404() {
+const Error404 = () => {
     useEffect(() => {
         goBackHome()
     }, []);
@@ -22,13 +21,14 @@ const Error404 = function Error404() {
             <Container fluid className='py-5 text-center'>
                 <h1>Page Not Found</h1>
                 <h3>ไม่พบหน้าที่ท่านต้องการ</h3>
+                <br />
                 <h6>...ระบบกำลังพาท่านกลับไปยังหน้าแรก...</h6>
             </Container>
         </MainLayout>
     )
 }
 
-const Error401 = function Error401() {
+const Error401 = () => {
     useEffect(() => {
         goBackHome()
     }, []);
@@ -38,10 +38,28 @@ const Error401 = function Error401() {
             <Container fluid className='py-5 text-center'>
                 <h1>Unauthorized</h1>
                 <h3>ท่านไม่มีสิทธ์เข้าใช้งานโปรแกรม/ฟังก์ชั่นนี้</h3>
+                <br />
                 <h6>...ระบบกำลังพาท่านกลับไปยังหน้าแรก...</h6>
             </Container>
         </MainLayout>
     )
 }
 
-export { Error404, Error401 }
+const Error500 = () => {
+    useEffect(() => {
+        goBackHome()
+    }, []);
+
+    return (
+        <MainLayout>
+            <Container fluid className='py-5 text-center'>
+                <h1>Error 500</h1>
+                <h3>พบปัญหาในการเข้าใช้งาน โปรดติดต่อสำนักทะเบียนและประมวลผล</h3>
+                <br />
+                <h6>...ระบบกำลังพาท่านกลับไปยังหน้าแรก...</h6>
+            </Container>
+        </MainLayout>
+    )
+}
+
+export { Error404, Error401, Error500 }

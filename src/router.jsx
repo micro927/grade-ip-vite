@@ -16,7 +16,7 @@ import Welcome from './pages/Welcome';
 import TeacherListCourse from "./pages/Teacher/CourseList"
 import FillGrade from './pages/Teacher/FillGrade';
 import DepartmentSubmit from "./pages/Department/Submit";
-import { Error401, Error404 } from './pages/ErrorWarning';
+import * as Error from './pages/ErrorWarning';
 
 const AppRouter = () => {
     const [tokenValidation, setTokenValidation] = useState()
@@ -55,14 +55,16 @@ const AppRouter = () => {
                 </Route>
                 <Route path='/faculty' element={<VerifyWithRow isValid={tokenValidation} level={3} />} >
                     <Route index element={<Welcome />} />
+                    <Route path="send" element={<Welcome />} />
                 </Route>
                 <Route path='/verify' element={<VerifyWithRow isValid={tokenValidation} level={9} />} >
                     <Route index element={<Welcome />} />
                 </Route>
                 <Route path='/summary' element={<Welcome />} />
                 <Route path='/authentication' element={<Authentication />} />
-                <Route path='*' element={<Error404 />} />
-                <Route path='401' element={<Error401 />} />
+                <Route path='*' element={<Error.Error404 />} />
+                <Route path='401' element={<Error.Error401 />} />
+                <Route path='500' element={<Error.Error500 />} />
             </Routes>
         </BrowserRouter>
     )

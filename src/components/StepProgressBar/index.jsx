@@ -1,8 +1,6 @@
 import './index.scss'
 import {
     Button,
-    Row,
-    Col
 } from 'react-bootstrap'
 
 function StepProgressBar() {
@@ -12,28 +10,35 @@ function StepProgressBar() {
             label: 'อาจารย์ผู้สอน',
             subtitle: 'บันทึกลำดับขั้น',
             button: 'ไปหน้าบันทึก',
-            to: './teacher',
+            to: '/teacher',
             levelRequire: 1
         },
         {
             label: 'เจ้าหน้าที่ภาควิชาฯ',
             subtitle: 'ยืนยันลำดับขั้น',
             button: 'ไปหน้ายืนยัน',
-            to: './department',
+            to: '/department',
             levelRequire: 2
         },
         {
             label: 'เจ้าหน้าที่คณะ',
-            subtitle: 'ยืนยันและนำส่งลำดับขั้น',
-            button: 'ไปหน้ายืนยันและนำส่ง',
-            to: './faculty',
+            subtitle: 'ยืนยันลำดับขั้น',
+            button: 'ไปหน้ายืนยัน',
+            to: '/faculty',
+            levelRequire: 3
+        },
+        {
+            label: 'เจ้าหน้าที่คณะ',
+            subtitle: 'นำส่งลำดับขั้น',
+            button: 'ไปหน้านำส่ง',
+            to: '/faculty/send',
             levelRequire: 3
         },
         {
             label: 'สำนักทะเบียน',
             subtitle: 'ตรวจสอบลำดับขั้น',
             button: 'ไปหน้าตรวจสอบ',
-            to: './verify',
+            to: '/verify',
             levelRequire: 9
         }
     ]
