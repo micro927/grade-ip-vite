@@ -1,0 +1,9 @@
+@import 'themes';
+
+.swal2-confirm.swal2-styled {
+    background-color: $primary;
+}
+
+.swal2-cancel.swal2-styled {
+    background-color: $secondary;
+}

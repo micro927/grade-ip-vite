@@ -16,6 +16,9 @@ import Welcome from './pages/Welcome';
 import TeacherListCourse from "./pages/Teacher/CourseList"
 import FillGrade from './pages/Teacher/FillGrade';
 import DepartmentSubmit from "./pages/Department/Submit";
+import FacultySubmit from "./pages/Faculty/Submit";
+import FacultySend from "./pages/Faculty/Send";
+import AdminVerify from "./pages/Admin/Verify";
 import * as Error from './pages/ErrorWarning';
 
 const AppRouter = () => {
@@ -40,7 +43,7 @@ const AppRouter = () => {
             )
         })()
         // /// STILL ERROR : tokenValidation still & stuck False in VerifyWithRow
-    }, [tokenValidation]);
+    }, []);
 
     return (
         <BrowserRouter>
@@ -54,11 +57,11 @@ const AppRouter = () => {
                     <Route index element={<DepartmentSubmit />} />
                 </Route>
                 <Route path='/faculty' element={<VerifyWithRow isValid={tokenValidation} level={3} />} >
-                    <Route index element={<Welcome />} />
-                    <Route path="send" element={<Welcome />} />
+                    <Route index element={<FacultySubmit />} />
+                    <Route path="send" element={<FacultySend />} />
                 </Route>
                 <Route path='/verify' element={<VerifyWithRow isValid={tokenValidation} level={9} />} >
-                    <Route index element={<Welcome />} />
+                    <Route index element={<AdminVerify />} />
                 </Route>
                 <Route path='/summary' element={<Welcome />} />
                 <Route path='/authentication' element={<Authentication />} />

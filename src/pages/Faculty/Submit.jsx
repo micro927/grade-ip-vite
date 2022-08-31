@@ -10,13 +10,13 @@ import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
 
 
-const DepartmentSubmit = () => {
+const FacultySubmit = () => {
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
     const [courseList, setCourseList] = useState([]);
 
-    const getCourseForDepartment = async () => {
+    const getCourseForFaculty = async () => {
         const appApiHost = import.meta.env.VITE_API_HOST
         let result
         await axios
@@ -51,13 +51,13 @@ const DepartmentSubmit = () => {
     }
 
     useEffect(() => {
-        getCourseForDepartment()
+        getCourseForFaculty()
     }, []);
 
 
     return (
         <MainLayout>
-            <h2>ยืนยันลำดับขั้นแก้ไขอักษร {gradeTypeTitle} ระดับภาควิชา</h2>
+            <h2>ยืนยันลำดับขั้นแก้ไขอักษร {gradeTypeTitle} ระดับคณะ</h2>
             {courseList.length
                 ?
                 <>
@@ -71,8 +71,8 @@ const DepartmentSubmit = () => {
                                 <th>สถานะการกรอก<br />อักษรลำดับขั้น</th>
                                 <th>ผู้กรอก<br />อักษรลำดับขั้น</th>
                                 <th>ผู้ยืนยัน<br />ระดับภาควิชา</th>
+                                <th>ผู้ยืนยัน<br />ระดับคณะ</th>
                                 <th>การดำเนินการ</th>
-
                             </tr>
                         </thead>
                         <tbody className='tableBody'>
@@ -91,6 +91,7 @@ const DepartmentSubmit = () => {
                                         <td className='text-center'>{courseTermTitle}</td>
                                         <td className={'text-center ' + studntAmountTextColor}>กรอกแล้ว {course.filled_student + "/" + course.all_student} ราย</td>
                                         <td></td>
+                                        <td></td>
                                         <td>{course.deptuser_submit_itaccountname}</td>
                                         <td>
                                             {course.is_fill == 1
@@ -98,11 +99,11 @@ const DepartmentSubmit = () => {
                                                 <>
                                                     {isShowAction
                                                         ?
-                                                        <Button size='sm' variant='primary' onClick={() => handleClickSubmit(course.class_id)}><Icon.Check2Circle /> ยืนยันลำดับขั้นกระบวนวิชานี้</Button>
+                                                        <Button size='sm' variant='success' onClick={() => handleClickSubmit(course.class_id)}><Icon.Check2Circle /> ยืนยันลำดับขั้นกระบวนวิชานี้</Button>
                                                         : <span className='text-secondary'>ยืนยันแล้ว</span>}
                                                     {' '}<Button size='sm' variant='outline-primary'> <Icon.FileEarmarkRuled /> CMR54</Button>
                                                 </>
-                                                : <span className='text-secondary'>ยังไม่ได้กรอกลำดับขั้น</span>
+                                                : <span className='text-secondary'>ยังไม่ได้ยืนยันจากภาควิชา</span>
                                             }
                                         </td>
                                     </tr>
@@ -117,4 +118,4 @@ const DepartmentSubmit = () => {
     )
 }
 
-export default DepartmentSubmit 
+export default FacultySubmit
