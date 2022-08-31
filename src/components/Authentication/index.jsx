@@ -47,7 +47,8 @@ const Authentication = () => {
                 .catch(function (error) {
                     // handle error
                     console.log(error);
-                    window.location.href = '/500'
+                    // window.location.href = '/500'
+                    window.location.href = '/'
                 })
         } else {
             redirectToCmuOauth

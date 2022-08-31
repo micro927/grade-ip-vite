@@ -91,6 +91,16 @@ const FacultySend = () => {
         // })
     }
 
+    const handleSendClick = () => {
+        Swal.fire({
+            title: `ยืนยันการนำส่งลำดับขั้นที่เลือก`,
+            icon: 'question',
+            confirmButtonText: 'ยืนยัน',
+            showCancelButton: true,
+            cancelButtonText: 'ตรวจสอบอีกครั้ง',
+        })
+    }
+
     useEffect(() => {
         getCourseForFaculty()
     }, []);
@@ -105,6 +115,10 @@ const FacultySend = () => {
             {courseList.length
                 ?
                 <>
+                    <div className='d-flex justify-content-end gap-2'>
+                        <Button variant='outline-primary'>เลือกทั้งหมด</Button>
+                        <Button variant='primary' onClick={handleSendClick}>นำส่งกระบวนวิชาที่เลือก</Button>
+                    </div>
                     <Table size='sm' hover responsive='xl' className='mt-4'>
                         <thead className='tableHead'>
                             <tr className='text-center'>
