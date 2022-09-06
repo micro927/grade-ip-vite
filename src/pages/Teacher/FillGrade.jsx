@@ -16,45 +16,45 @@ import {
 } from 'react-bootstrap';
 import NoDataBox from '../../components/NoDataBox';
 
-function GradeSelect(props) {
-    const [isChangeGrade, setIsChangeGrade] = useState('')
-    const gradeOptionList = [
-        ['', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
-        ['', 'S', 'U']
-    ]
-    const gradeOption = gradeOptionList[props.gradeId ?? 0]
-    // let gradeSelectClass = ''
-    function handleGradeChange(e) {
-        setIsChangeGrade(e.target.value == (props.gradeNow ?? '') ? '' : 'border-primary')
-        props.ongradeChange()
-    }
-    return (
-        <Form.Select className={isChangeGrade} onChange={handleGradeChange} defaultValue={props.gradeNow}>
-            {gradeOption.map((grade) => <option key={grade} value={grade}>{grade}</option>)}
-        </Form.Select>
-    )
-}
-
 function FillGrade() {
+    const loginInfo = JSON.parse(localStorage.getItem('loginInfo'))
+    const userCmuItAccountName = loginInfo?.cmuitaccount_name
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
-    const params = useParams()
     const appApiHost = import.meta.env.VITE_API_HOST
+    const params = useParams()
     const classId = params.classId
-    const [studentList, setstudentList] = useState([]);
-    const [courseDetail, setCourseDetail] = useState([]);
     const navigate = useNavigate()
 
-    const getStudentGrade = async (classId) => {
+    const [studentList, setstudentList] = useState([]);
+    const [inputGradeList, setInputGradeList] = useState({});
+    const [gradeOption, setGradeOption] = useState([]);
+    const [courseDetail, setCourseDetail] = useState([]);
+
+    const getStudentList = async (classId) => {
         let result
         await axios
             .get(`${appApiHost}/teacher/fill/${classId}`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
             })
             .then(async (response) => {
-                // console.log(response.data)
                 result = await response.data
-                setstudentList(result)
+                setstudentList(() => {
+                    const res = result[0].map((row) => {
+                        return { ...row, editor: null }
+                    })
+                    return res
+                })
+
+                setInputGradeList(result[1])
+                return result.gradeId
+            })
+            .then((gradeId) => {
+                const gradeOptionList = [
+                    ['', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
+                    ['', 'S', 'U']
+                ]
+                setGradeOption(gradeOptionList[gradeId ?? 0])
             })
             .catch((error) => {
                 const errorStatus = error.response.status
@@ -93,6 +93,27 @@ function FillGrade() {
             })
     }
 
+    useEffect(() => {
+        getCourseDetail(classId)
+        getStudentList(classId)
+    }, []);
+
+    const handleGradeChange = (event, index) => {
+        const name = event.target.name;
+        const grade = event.target.value;
+        setInputGradeList(grades => ({ ...grades, [name]: grade }))
+        setstudentList(studentlists => {
+            const grade_init = studentlists[index].grade_new
+            if (grade_init != grade) {
+                studentlists[index].editor = userCmuItAccountName + ' /กำลังแก้ไข'
+
+            }
+            studentlists[index].grade_new = grade
+            return studentlists
+        })
+        console.log(index);
+    }
+
     const handleClickConfirm = () => {
         Swal.fire({
             title: 'TEST',
@@ -103,12 +124,6 @@ function FillGrade() {
     const handleClickBack = () => {
         navigate(-1)
     }
-
-
-    useEffect(() => {
-        getCourseDetail(classId)
-        getStudentGrade(classId)
-    }, []);
 
     return (
         <MainLayout>
@@ -147,7 +162,9 @@ function FillGrade() {
                                 <td className='text-center'>{student.enroll_status}</td>
                                 <td className='text-center'>{student.grade_old}</td>
                                 <td>
-                                    <GradeSelect ongradeChange={() => console.log('555555555555555555555')} gradeOption={courseDetail.grade_id} gradeNow={student.grade_new} />
+                                    <Form.Select onChange={(event) => handleGradeChange(event, rowNumber)} name={student.student_id} value={inputGradeList[student.student_id]}>
+                                        {gradeOption.map((grade) => <option key={grade} value={grade}>{grade}</option>)}
+                                    </Form.Select>
                                 </td>
                                 <td className='text-center'>{student.fill_itaccountname}</td>
                                 <td className=''></td>
