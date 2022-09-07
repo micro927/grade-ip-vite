@@ -27,47 +27,8 @@ function FillGrade() {
     const navigate = useNavigate()
 
     const [studentList, setstudentList] = useState([]);
-    const [inputGradeList, setInputGradeList] = useState({});
     const [gradeOption, setGradeOption] = useState([]);
     const [courseDetail, setCourseDetail] = useState([]);
-
-    const getStudentList = async (classId) => {
-        let result
-        await axios
-            .get(`${appApiHost}/teacher/fill/${classId}`, {
-                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
-            })
-            .then(async (response) => {
-                result = await response.data
-                setstudentList(() => {
-                    const res = result[0].map((row) => {
-                        return { ...row, editor: null }
-                    })
-                    return res
-                })
-
-                setInputGradeList(result[1])
-                return result.gradeId
-            })
-            .then((gradeId) => {
-                const gradeOptionList = [
-                    ['', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
-                    ['', 'S', 'U']
-                ]
-                setGradeOption(gradeOptionList[gradeId ?? 0])
-            })
-            .catch((error) => {
-                const errorStatus = error.response.status
-                if (errorStatus == 403) {
-                    window.location.href = '/' + errorStatus
-                }
-                else {
-                    console.error('API ERROR : ' + error.code)
-                    result = []
-                    setstudentList(result)
-                }
-            })
-    }
 
     const getCourseDetail = async (classId) => {
         let result
@@ -79,6 +40,12 @@ function FillGrade() {
                 // console.log(response.data)
                 result = await response.data
                 setCourseDetail(result)
+                result.grade_id
+                const gradeOptionList = [
+                    ['', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'],
+                    ['', 'S', 'U']
+                ]
+                setGradeOption(gradeOptionList[result.grade_id || 0])
             })
             .catch((error) => {
                 const errorStatus = error.response.status
@@ -93,25 +60,52 @@ function FillGrade() {
             })
     }
 
+    const getStudentList = async (classId) => {
+        let result
+        await axios
+            .get(`${appApiHost}/teacher/fill/${classId}`, {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+            })
+            .then(async (response) => {
+                result = await response.data
+                setstudentList(result)
+            })
+            .catch((error) => {
+                const errorStatus = error.response.status
+                if (errorStatus == 403) {
+                    window.location.href = '/' + errorStatus
+                }
+                else {
+                    console.error('API ERROR : ' + error.code)
+                    result = []
+                    setstudentList(result)
+                }
+            })
+    }
+
     useEffect(() => {
         getCourseDetail(classId)
         getStudentList(classId)
     }, []);
 
-    const handleGradeChange = (event, index) => {
-        const name = event.target.name;
-        const grade = event.target.value;
-        setInputGradeList(grades => ({ ...grades, [name]: grade }))
-        setstudentList(studentlists => {
-            const grade_init = studentlists[index].grade_new
-            if (grade_init != grade) {
-                studentlists[index].editor = userCmuItAccountName + ' /กำลังแก้ไข'
-
-            }
-            studentlists[index].grade_new = grade
-            return studentlists
+    const handleGradeChange = (event) => {
+        const studentId = event.target.name
+        const grade = event.target.value
+        const dateTimeNow = '*กำลังแก้ไข*' //new Date().toLocaleString()
+        setstudentList(prevList => {
+            const newList = prevList.map((row) => {
+                if (row.student_id == studentId) {
+                    const thisEditGrade = grade
+                    const thisEditBy = row.grade_new != thisEditGrade ? userCmuItAccountName : row.fill_itaccountname
+                    const thisEditdatetime = row.grade_new != thisEditGrade ? dateTimeNow : row.fill_datetime
+                    return { ...row, edit_grade: thisEditGrade, edit_by: thisEditBy, edit_datetime: thisEditdatetime }
+                }
+                else {
+                    return { ...row }
+                }
+            })
+            return newList
         })
-        console.log(index);
     }
 
     const handleClickConfirm = () => {
@@ -132,19 +126,18 @@ function FillGrade() {
                 <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab}) |  ${courseDetail.course_title}`}</h4>
                 <h4>ภาคการศึกษาที่ได้รับเกรด P 1/2565</h4>
             </div>
-
             {studentList.length ? <Table responsive='xl' bordered hover className='mt-2'>
                 <thead className='tableHead'>
                     <tr className='text-center'>
                         <th>ที่</th>
                         <th>รหัสนักศึกษา</th>
                         <th>ชื่อ</th>
-                        <th>สกุล</th>
+                        <th>นามสกุล</th>
                         <th>สถานะการลงทะเบียน</th>
                         <th>ลำดับขั้นเดิม</th>
                         <th>ลำดับขั้นที่ได้รับ</th>
                         <th>บันทึกลำดับขั้นโดย</th>
-                        <th>ช่องทางการบันทึก</th>
+                        <th>เวลาที่บันทึก</th>
                     </tr>
                 </thead>
                 <tbody className='tableBody'>
@@ -162,12 +155,12 @@ function FillGrade() {
                                 <td className='text-center'>{student.enroll_status}</td>
                                 <td className='text-center'>{student.grade_old}</td>
                                 <td>
-                                    <Form.Select onChange={(event) => handleGradeChange(event, rowNumber)} name={student.student_id} value={inputGradeList[student.student_id]}>
+                                    <Form.Select onChange={handleGradeChange} name={student.student_id} value={student.edit_grade}>
                                         {gradeOption.map((grade) => <option key={grade} value={grade}>{grade}</option>)}
                                     </Form.Select>
                                 </td>
-                                <td className='text-center'>{student.fill_itaccountname}</td>
-                                <td className=''></td>
+                                <td className='text-center'>{student.edit_by}</td>
+                                <td className='text-center'>{student.edit_datetime}</td>
                             </tr>
                         )
                     })}
