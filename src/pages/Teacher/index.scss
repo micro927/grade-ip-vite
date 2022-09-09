@@ -1,9 +1,44 @@
-@import '../../styles/_themes.scss';
+@import "../../styles/_themes.scss";
 
 .tableHead {
-    border-bottom: 2px solid $gray-600;
+  border-bottom: 2px solid $gray-600;
 }
 
 .tableBody td {
-    vertical-align: middle;
+  vertical-align: middle;
+}
+
+.table-fillgrade {
+  //   .thead-no {
+  //     width: 50%;
+  //   }
+  //   .thead-student-id {
+  //     width: 10%;
+  //   }
+  //   .thead-name {
+  //     width: 14%;
+  //   }
+  //   .thead-surname {
+  //     width: 14%;
+  //   }
+  //   .thead-status {
+  //     width: 12%;
+  //   }
+  //   .thead-grade-old {
+  //     width: 8%;
+  //   }
+  //   .thead-grade-new {
+  //     width: 8%;
+  //   }
+  .thead-edit-by {
+    width: 15%;
+  }
+  .thead-edit-datetime {
+    width: 17%;
+  }
+  .tr-0_ {
+    background-color: $gray-100;
+    color: $secondary;
+    // @extend .table-primary;
+  }
 }

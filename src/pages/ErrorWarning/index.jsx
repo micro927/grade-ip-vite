@@ -5,10 +5,12 @@ import {
 import MainLayout from '../../layouts/MainLayout'
 
 function goBackHome() {
-    console.log('BACK TO HOMEPAGE...')
-    setTimeout(() => {
-        window.location.href = '/'
-    }, 10000)
+    // console.log('BACK TO HOMEPAGE...')
+    // setTimeout(() => {
+    //     window.location.href = '/'
+    // }, 10000)
+    console.log('PLEASE GO BACK TO HOMEPAGE...')
+
 }
 
 const Error404 = () => {
