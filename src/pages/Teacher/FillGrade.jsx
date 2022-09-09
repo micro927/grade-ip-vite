@@ -41,7 +41,6 @@ function FillGrade() {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
             })
             .then(async (response) => {
-                // console.log(response.data)
                 result = await response.data
                 setCourseDetail(result)
                 result.grade_id
@@ -120,7 +119,6 @@ function FillGrade() {
     const handleGradeChange = async (event) => {
         const studentId = event.target.name
         const grade = event.target.value
-        console.log(grade);
         setstudentList(prevList => {
             const newList = prevList.map((row) => {
                 if (row.student_id == studentId) {
@@ -160,8 +158,14 @@ function FillGrade() {
                     .post(`${appApiHost}/teacher/save/${classId}`, studentList, {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
                     }).then((response) => {
-                        console.log(response.data)
-                    }).catch((error) => console.error('SAVE API:', error?.response?.data || error))
+                        const { status, affectedRows } = response.data
+                        console.log(affectedRows || 'no affectedRows');
+                        if (status == 'ok' && affectedRows > 0) {
+                            navigate('/teacher')
+                        }
+                    }).catch((error) => {
+                        console.error('SAVE API:', error)
+                    })
             }
         })
     }
@@ -214,7 +218,7 @@ function FillGrade() {
                             const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : '' */}
                         const rowNumber = index + 1
                         const enrollStatusCode = student.enroll_status.substring(0, 2)
-                        const IsEnrolled = enrollStatusCode == '0_'
+                        const IsEnrolled = enrollStatusCode != '0_'
 
                         return (
                             <tr key={student.student_id} className={'tr-' + enrollStatusCode} >
