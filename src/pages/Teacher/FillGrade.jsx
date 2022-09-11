@@ -66,7 +66,7 @@ function FillGrade() {
     const getStudentList = async (classId) => {
         let result
         await axios
-            .get(`${appApiHost}/teacher/fill/${classId}`, {
+            .get(`${appApiHost}/teacher/studentlist/${classId}`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
             })
             .then(async (response) => {
@@ -142,8 +142,8 @@ function FillGrade() {
 
     const handleClickConfirm = () => {
         const textForCheck = `
-        <p>กระบวนวิชา : <span>${courseDetail.courseno}</span></p> 
-        <p>จำนวนที่แก้ไข : <span>${countGradeChange} ราย</span></p>
+        <p><span>${courseDetail.courseno} (${courseDetail.seclec} -${courseDetail.seclab}) <br> ${courseDetail.course_title}</span></p> 
+        <p>จำนวนนักศึกษาที่แก้ไข : <span>${countGradeChange} ราย</span></p>
         `
         Swal.fire({
             title: 'ยืนยันการบันทึกลำดับขั้น ?',
@@ -161,7 +161,14 @@ function FillGrade() {
                         const { status, affectedRows } = response.data
                         console.log(affectedRows || 'no affectedRows');
                         if (status == 'ok' && affectedRows > 0) {
-                            navigate('/teacher')
+                            Swal.fire({
+                                title: 'บันทึกข้อมูลแล้ว',
+                                icon: 'success',
+                                confirmButtonText: 'ตกลง',
+                                timer: '3000',
+                            }).then(() => {
+                                navigate('/teacher')
+                            })
                         }
                     }).catch((error) => {
                         console.error('SAVE API:', error)
@@ -239,7 +246,7 @@ function FillGrade() {
                         )
                     })}
                 </tbody>
-            </Table> : <NoDataBox msg='No data' />}
+            </Table> : <NoDataBox msg='Loading...' />}
             <hr />
             <Row className=' justify-content-end'>
                 <Col sm={3}>

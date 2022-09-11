@@ -12,6 +12,7 @@ import axios from 'axios';
 
 import MainLayout from '../../layouts/MainLayout'
 import NoDataBox from '../../components/NoDataBox';
+import ExcelDownload from './ExcelDownload';
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
@@ -88,7 +89,7 @@ const ListCourse = () => {
                                 <td>
                                     <ButtonGroup>
                                         <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
-                                        <Button variant='outline-secondary'><Icon.FileEarmarkArrowDown /> Download Excel</Button>
+                                        <Button variant='outline-secondary' onClick={() => ExcelDownload(course.class_id)}><Icon.FileEarmarkArrowDown /> Download Excel</Button>
                                         <Button variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</Button>
                                         <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
                                     </ButtonGroup>
@@ -97,7 +98,7 @@ const ListCourse = () => {
                         )
                     })}
                 </tbody>
-            </Table> : <NoDataBox msg={"ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษร" + gradeTypeTitle} />}
+            </Table> : <NoDataBox msg="Loading ...." />}
         </MainLayout>
     )
 }
