@@ -1,57 +1,99 @@
-import './index.scss'
-import { read, utils, writeFile } from 'xlsx';
-import axios from 'axios';
-import { Table } from 'react-bootstrap';
+// import { utils, writeFileXLSX } from 'xlsx';
+import { utils, writeFileXLSX } from 'sheetjs-style';
 
+import axios from 'axios'
 
+function ExcelDownload(classId) {
 
-
-
-
-async function ExcelDownload(classId) {
     const appApiHost = import.meta.env.VITE_API_HOST
-    await axios
+    axios
         .get(`${appApiHost}/teacher/coursedetail/${classId}`, {
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
         })
         .then(async (response) => {
-            const courseDetail = response.data
+            const courseDetail = await response.data
             await axios
                 .get(`${appApiHost}/teacher/studentlist/${classId}`, {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
                 })
                 .then(async (response) => {
-                    const studentList = await response.data
+                    const data = await response.data
+                    const studentList = await data.map((row, index) => {
+                        const No = index + 1
+                        const studentId = row.student_id
+                        const Name = row.name
+                        const surName = row.surname
+                        const Grade = row.grade_new
+                        const SECLEC = row.seclec
+                        const SECLAB = row.seclab
+                        return {
+                            No,
+                            studentId,
+                            Name,
+                            surName,
+                            Grade,
+                            SECLEC,
+                            SECLAB,
+                        }
+                    })
+                    const gradeType = localStorage.getItem('gradeType') ?? false
+                    const gradeTypeTitle = gradeType.toUpperCase()
+                    const sheetName = courseDetail.courseno
+                    const workBookName = courseDetail.courseno + '.xlsx'
 
-                    const ExcelTable = (
-                        <Table>
-                            {studentList.map((row) => {
-                                <tr>
-                                    <td>{row.student_id}</td>
-                                    <td>{row.name}</td>
-                                    <td>{row.surname}</td>
-                                    <td>{row.grade_new}</td>
-                                </tr>
-                            })
-                            }
-                        </Table>
-                    )
-                    // create excelsheet form data here
-                    // data ====> courseDetail ...... studentList ......
+                    const workSheet = utils.aoa_to_sheet([
+                        ["ส่งลำดับขั้นแก้ไขอักษร " + gradeTypeTitle],
+                        ['COURSENO', '', courseDetail.courseno],
+                        ['TITLE', '', courseDetail.course_title],
+                        ['SECTION (lec/lab)', '', courseDetail.seclec],
+                        ['LECTURER', '', courseDetail.instructor_id],
+                        ['DATE', '', 'THIS DATE'],
+                    ]);
 
-                    // const worksheet = utils.json_to_sheet(studentList);
-                    // const workbook = utils.book_new();
-                    const workbook = utils.table_to_book(ExcelTable);
+                    utils.sheet_add_json(workSheet, studentList, { origin: -1 });
 
-                    // utils.book_append_sheet(workbook, worksheet);
-                    return writeFile(workbook, "test.xlsx");
+                    if (!workSheet["!merges"]) workSheet["!merges"] = [];
+                    workSheet["!merges"].push(utils.decode_range("A1:G1"));
+
+
+                    workSheet["!merges"].push(utils.decode_range("A2:B2"));
+                    workSheet["!merges"].push(utils.decode_range("C2:G2"));
+
+                    workSheet["!merges"].push(utils.decode_range("A3:B3"));
+                    workSheet["!merges"].push(utils.decode_range("C3:G3"));
+
+                    workSheet["!merges"].push(utils.decode_range("C4:G4"));
+                    workSheet["!merges"].push(utils.decode_range("A4:B4"));
+
+                    workSheet["!merges"].push(utils.decode_range("A5:B5"));
+                    workSheet["!merges"].push(utils.decode_range("C5:G5"));
+
+                    workSheet["!merges"].push(utils.decode_range("A6:B6"));
+                    workSheet["!merges"].push(utils.decode_range("C6:G6"));
+
+                    workSheet["!merges"].push(utils.decode_range("C7:D7"));
+
+                    workSheet['F2'] = {
+                        font: {
+                            name: '宋体',
+                            sz: 24,
+                            bold: true,
+                            color: { rgb: "FFFFAA00" }
+                        },
+                    };
+
+                    const workBook = utils.book_new();
+                    utils.book_append_sheet(workBook, workSheet, sheetName);
+
+                    writeFileXLSX(workBook, workBookName);
+
                 }).catch((error) => {
                     console.log('ERROR stdlist', error)
                 })
-        })
-        .catch((error) => {
-            console.log('ERROR cdetail', error)
+        }).catch((error) => {
+            console.log('ERROR coursedetail', error)
         })
 }
+
 
 export default ExcelDownload

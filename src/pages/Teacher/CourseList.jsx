@@ -1,5 +1,5 @@
 import '../../styles/table.scss'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import * as Icon from 'react-bootstrap-icons';
 import {
@@ -16,7 +16,6 @@ import ExcelDownload from './ExcelDownload';
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
-
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
