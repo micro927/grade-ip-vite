@@ -9,10 +9,12 @@ import {
 
 } from 'react-bootstrap';
 import axios from 'axios';
+import readXlsxFile from 'read-excel-file/web-worker'
 
 import MainLayout from '../../layouts/MainLayout'
 import NoDataBox from '../../components/NoDataBox';
-import ExcelDownload from './ExcelDownload';
+import FileUploaderButton from '../../components/FileUploaderButton';
+import Swal from 'sweetalert2';
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
@@ -45,10 +47,89 @@ const ListCourse = () => {
             })
     }
 
-    function onClickFillMenu(classId) {
+    const onClickFillMenu = (classId) => {
         navigate('fill/' + classId)
     }
 
+    const onClickDownload = async (classId, option = 1) => {
+        const appApiHost = import.meta.env.VITE_API_HOST
+        await axios
+            .get(`${appApiHost}/teacher/exceldownload/${classId}`, {
+                responseType: 'blob', // important
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+                params: { gradeType: gradeType }
+            })
+            .then(async (response) => {
+                const href = URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                link.href = href;
+                link.setAttribute('download', classId + '.xlsx');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            })
+            .catch((error) => {
+                console.log('api download: ', error);
+            })
+    }
+
+    const onFileUploaded = (file, uploadId) => {
+        readXlsxFile(file).then(async (rows) => {
+            const classId = uploadId
+            const classIdpartClicked = classId.substr(5, 12)
+            const gradeType = classId.substr(-1)
+            const courseNo = rows?.[1]?.[2] ?? ''
+            const secLab = rows?.[3]?.[2] ?? ''
+            const classIdpartForCheck = courseNo + secLab.replace('/', '')
+
+            if (classIdpartClicked !== classIdpartForCheck) {
+                return Swal.fire({
+                    title: 'พบข้อผิดพลาด',
+                    icon: 'warning',
+                    html: `ไฟล์ที่ท่านอัพโหลดไม่ตรงกับกระบวนวิชาที่ท่านเลือก`
+                })
+            }
+            else {
+                const dataList = rows.slice(7, rows.length)
+                const dataForSave = dataList.map((row) => {
+                    return {
+                        student_id: row[1],
+                        name: row[2],
+                        surname: row[3],
+                        enroll_status: 0,
+                        grade_old: gradeType,
+                        grade_new: row[4],
+                        fill_itaccountname: 0,
+                        fill_datetime: 0,
+                        edit_grade: row[4],
+                        edit_by: 0,
+                        edit_datetime: 0
+                    }
+                })
+                console.log(dataForSave)
+
+                //             navigate bla bla{
+                //                 pathname: `/payment/${product.id}`,
+                //                     state: {
+                //                     product, // <-- the mapped product from data
+                // },
+                //             }
+            }
+
+
+            console.log(rows);
+            // `rows` is an array of rows
+            // each row being an array of cells.
+        }).catch((error) => {
+            console.log(error);
+            Swal.fire({
+                title: 'พบข้อผิดพลาด',
+                icon: 'error',
+                html: 'กรุณาตรวจสอบประเภทไฟล์ที่ท่านอัพโหลดอีกครั้ง'
+            })
+        })
+    }
 
     useEffect(() => {
         getCourseForTeacher()
@@ -88,8 +169,8 @@ const ListCourse = () => {
                                 <td>
                                     <ButtonGroup>
                                         <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
-                                        <Button variant='outline-secondary' onClick={() => ExcelDownload(course.class_id)}><Icon.FileEarmarkArrowDown /> Download Excel</Button>
-                                        <Button variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</Button>
+                                        <Button variant='outline-secondary' onClick={() => onClickDownload(course.class_id)}><Icon.FileEarmarkArrowDown /> Download Excel</Button>
+                                        <FileUploaderButton uploadId={course.class_id} handleFileFunction={onFileUploaded} variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</FileUploaderButton>
                                         <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
                                     </ButtonGroup>
                                 </td>
