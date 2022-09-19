@@ -80,8 +80,8 @@ const ListCourse = () => {
             const classIdpartClicked = classId.substr(5, 12)
             const gradeType = classId.substr(-1)
             const courseNo = rows?.[1]?.[2] ?? ''
-            const secLab = rows?.[3]?.[2] ?? ''
-            const classIdpartForCheck = courseNo + secLab.replace('/', '')
+            const secLecLab = rows?.[3]?.[2] ?? ''
+            const classIdpartForCheck = courseNo + secLecLab.replace('/', '')
 
             if (classIdpartClicked !== classIdpartForCheck) {
                 return Swal.fire({
@@ -107,18 +107,31 @@ const ListCourse = () => {
                         edit_datetime: 0
                     }
                 })
-                console.log(dataForSave)
 
-                //             navigate bla bla{
-                //                 pathname: `/payment/${product.id}`,
-                //                     state: {
-                //                     product, // <-- the mapped product from data
-                // },
-                //             }
+                Swal.fire({
+                    icon: 'question',
+                    title: 'ยืนยันการนำเข้าลำดับขั้น ?',
+                    html: `นำเข้าลำดับขั้นจากไฟล์ Excel<br>
+                    กระบวนวิชา ${courseNo} (${secLecLab})<br>
+                            จำนวนนักศึกษา ${dataForSave.length} ราย`,
+                    showCancelButton: true,
+                    confirmButtonText: 'นำเข้าลำดับขั้น',
+                    cancelButtonText: 'ยกเลิก',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate(`./fill/${classId}`,
+                            {
+                                state: {
+                                    dataForSave
+                                }
+                            }
+                        )
+                    }
+                })
             }
+            // navigate
 
-
-            console.log(rows);
+            // console.log(rows);
             // `rows` is an array of rows
             // each row being an array of cells.
         }).catch((error) => {

@@ -1,7 +1,7 @@
 import '../../styles/table.scss'
 import './index.scss'
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 // import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
@@ -27,12 +27,14 @@ function FillGrade() {
     const classId = params.classId
     const dateTimeNow = '*กำลังแก้ไข*' //new Date().toLocaleString()
     const navigate = useNavigate()
+    const location = useLocation();
 
 
-    const [studentList, setstudentList] = useState([]);
+    const [studentList, setStudentList] = useState([]);
+    const [excelStudentList, setExcelStudentList] = useState([]);
     const [gradeOption, setGradeOption] = useState([]);
     const [courseDetail, setCourseDetail] = useState([]);
-    const [countGradeChange, setCountGradeChange] = useState(0);
+    const [countGradeChange, setCountGradeChange] = useState(-1);
 
     const getCourseDetail = async (classId) => {
         let result = []
@@ -65,6 +67,7 @@ function FillGrade() {
 
     const getStudentList = async (classId) => {
         let result
+        const excelDataForSave = await location?.state?.dataForSave ?? []
         await axios
             .get(`${appApiHost}/teacher/studentlist/${classId}`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
@@ -81,6 +84,7 @@ function FillGrade() {
                     }
                     return statusText
                 }
+
                 const datetimeText = (datetime) => {
                     return datetime == null ? '' : new Date(datetime).toLocaleString('th-TH', {
                         day: 'numeric',
@@ -101,7 +105,10 @@ function FillGrade() {
                         enroll_status_text: enrollStatusText(row.enroll_status),
                     })
                 })
-                setstudentList(resultWithDatetimeText)
+
+                setStudentList(resultWithDatetimeText)
+                setExcelStudentList(excelDataForSave)
+
             })
             .catch((error) => {
                 const errorStatus = error.response?.status
@@ -111,15 +118,49 @@ function FillGrade() {
                 else {
                     console.error('fill API ERROR :', error)
                     result = []
-                    setstudentList(result)
+                    setStudentList(result)
                 }
             })
+    }
+
+    const pushExcelGradeToStudentList = () => {
+
+        if (excelStudentList.length > 0) {
+            setStudentList((prevList) => {
+                const newList = prevList.map((row) => {
+                    const studentGradeWithConditionChecked = excelStudentList.find((excelRow) => {
+                        return excelRow.student_id === row.student_id
+                            &&
+                            row.enroll_status.substr(0, 1) == '1'
+                            &&
+                            gradeOption.includes(excelRow.edit_grade)
+                    }) ?? false
+                    if (studentGradeWithConditionChecked) {
+
+                        const thisEditGrade = studentGradeWithConditionChecked.edit_grade
+                        const thisEditBy = userCmuItAccountName
+                        const thisEditdatetime = dateTimeNow
+                        return {
+                            ...row,
+                            edit_grade: thisEditGrade,
+                            edit_by: thisEditBy,
+                            edit_datetime: thisEditdatetime,
+                        }
+                    }
+                    else {
+                        return { ...row }
+                    }
+                })
+                return newList
+            })
+            navigate(location.pathname, {});
+        }
     }
 
     const handleGradeChange = async (event) => {
         const studentId = event.target.name
         const grade = event.target.value
-        setstudentList(prevList => {
+        setStudentList(prevList => {
             const newList = prevList.map((row) => {
                 if (row.student_id == studentId) {
                     const thisEditGrade = grade
@@ -181,7 +222,6 @@ function FillGrade() {
         navigate('/teacher')
     }
 
-
     const isFirstRender = useRef(true)
     useEffect(() => {
         if (isFirstRender.current) {
@@ -190,13 +230,48 @@ function FillGrade() {
             isFirstRender.current = false
             return;
         }
+    }, [])
 
+    useEffect(() => {
         setCountGradeChange(() => {
             const countGradeChangeNow = studentList.filter(student => student.edit_datetime == dateTimeNow)
             return countGradeChangeNow.length
         })
-
     }, [studentList]);
+
+    useEffect(() => {
+        pushExcelGradeToStudentList()
+    }, [excelStudentList]);
+
+
+    const isFirstGradeChange = useRef(true)
+    useEffect(() => {
+        if (isFirstGradeChange) {
+            if (excelStudentList.length > 0) {
+                if (countGradeChange > 0) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: `นำเข้าลำดับขั้น<br>จำนวน ${countGradeChange} ราย สำเร็จ`,
+                        html: `กรุณาตรวจสอบลำดับขั้นที่ท่านนำเข้าอีกครั้ง<br>ก่อนกด "บันทึกลำดับขั้น"`,
+                        confirmButtonText: 'ตกลง',
+                    }).then(() => {
+                        isFirstGradeChange.current = false
+                    })
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: `ไม่สามารถนำเข้าลำดับขั้นได้`,
+                        html: `โปรดตรวจสอบสถานภาพ/การลงทะเบียนของนักศึกษาที่ท่านนำเข้าลำดับขั้น`,
+                        confirmButtonText: 'ตกลง',
+                    }).then(() => {
+                        isFirstGradeChange.current = false
+                        // navigate back ????
+                    })
+                }
+            }
+        }
+    }, [countGradeChange, excelStudentList]) ///not sure this work all cases, test-check again
 
     return (
         <MainLayout>
