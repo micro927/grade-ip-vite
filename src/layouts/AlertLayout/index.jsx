@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {
     Container,
 } from 'react-bootstrap'
@@ -17,6 +18,10 @@ function AlertLayout(props) {
             </footer>
         </>
     )
+}
+
+AlertLayout.propTypes = {
+    children: PropTypes.node.isRequired
 }
 
 export default AlertLayout

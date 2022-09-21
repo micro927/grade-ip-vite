@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import './index.scss'
 
 import {
@@ -6,6 +7,7 @@ import {
 
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+
 function MainLayout(props) {
     return (
         <>
@@ -24,6 +26,10 @@ function MainLayout(props) {
             </footer>
         </>
     )
+}
+
+MainLayout.propTypes = {
+    children: PropTypes.node.isRequired
 }
 
 export default MainLayout

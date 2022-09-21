@@ -8,7 +8,7 @@ import {
 
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-
+import PropTypes from 'prop-types';
 
 
 const MainSidebarLayout = (props) => {
@@ -39,6 +39,11 @@ const MainSidebarLayout = (props) => {
             </footer>
         </>
     )
+}
+
+MainSidebarLayout.propTypes = {
+    children: PropTypes.node.isRequired,
+    sidebarContent: PropTypes.node.isRequired,
 }
 
 export default MainSidebarLayout 

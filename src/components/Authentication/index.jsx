@@ -15,11 +15,15 @@ const redirectToCmuOauth = () => {
     window.location.href = cmuLoginUrl
 }
 
-function Logout() {
+const clearLocalStorage = () => {
     localStorage.removeItem('isLogin')
     localStorage.removeItem('loginInfo')
     localStorage.removeItem('userToken')
     localStorage.removeItem('gradeType')
+}
+
+const Logout = () => {
+    clearLocalStorage()
     return (
         window.location.reload())
 }
@@ -69,26 +73,26 @@ const Authentication = () => {
     )
 }
 
-const checkUserToken = async () => {
+const checkUserToken = async (userToken) => {
     const appApiHost = import.meta.env.VITE_API_HOST
-    const userToken = localStorage.getItem('userToken') ?? false
     let isValid = false
-    if (userToken) {
-        await axios
-            .get(`${appApiHost}/checkusertoken`,
-                {
-                    headers: { 'Authorization': 'Bearer ' + userToken },
-                }
-            )
-            .then(function (response) {
-                isValid = response.data.isAuthorized;
-            })
-            .catch(function (error) {
-                console.error('API CHECK ERROR : ' + error.code)
-                isValid = error.response.data?.isAuthorized || false
-                // window.location.href = './'
-            })
-    }
+    await axios
+        .get(`${appApiHost}/checkusertoken`,
+            {
+                headers: { 'Authorization': 'Bearer ' + userToken },
+            }
+        )
+        .then(async (response) => {
+            isValid = await response.data.isAuthorized;
+            if (!isValid) {
+                clearLocalStorage()
+            }
+        })
+        .catch((error) => {
+            console.error('API CHECK ERROR : ' + error.code)
+            isValid = error.response.data?.isAuthorized || false
+            // window.location.href = './'
+        })
     return isValid
 }
 

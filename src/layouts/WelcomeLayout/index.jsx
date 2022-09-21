@@ -1,7 +1,7 @@
+import PropTypes from 'prop-types';
 import {
     Container,
 } from 'react-bootstrap'
-
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 function WelcomeLayout(props) {
@@ -20,6 +20,10 @@ function WelcomeLayout(props) {
             </footer>
         </>
     )
+}
+
+WelcomeLayout.propTypes = {
+    children: PropTypes.node.isRequired
 }
 
 export default WelcomeLayout

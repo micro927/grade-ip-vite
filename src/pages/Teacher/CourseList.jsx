@@ -32,7 +32,23 @@ const ListCourse = () => {
             })
             .then(async (response) => {
                 result = await response.data
-                setCourseList(result)
+
+                setCourseList(() => {
+                    const courseListEdited = result.map((course) => {
+                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
+                        const isAllfilled = course.filled_student === course.all_student
+                        const submitStatus = isAllfilled
+                            ? course.submit_status
+                            : 'wait_fill'
+                        return {
+                            ...course,
+                            courseTermTitle,
+                            isAllfilled,
+                            submitStatus,
+                        }
+                    })
+                    return courseListEdited
+                })
             })
             .catch((error) => {
                 const errorStatus = error.response.status
@@ -160,16 +176,25 @@ const ListCourse = () => {
                         <th>ตอนปฏิบัติการ</th>
                         <th>ชื่อกระบวนวิชา</th>
                         <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
+                        <th>สถานะการส่งลำดับขั้น</th>
                         <th>แก้ไขอักษร<br />ลำดับขั้นแล้ว (ราย)</th>
                         <th>การดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody className='tableBody'>
                     {courseList.map((course, index) => {
-                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                         const rowNumber = index + 1
-                        const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
+                        const studntAmountTextColor = course.isAllfilled ? 'text-success' : ''
+                        const submitStatusTitleList = {
+                            wait_dept: 'รอภาควิชาฯ ยืนยัน',
+                            wait_fac: 'รอคณะยืนยัน',
+                            wait_deliver: 'รอคณะนำส่ง',
+                            wait_reg: 'รอสำนักทะเบียนฯ ยืนยัน',
+                            wait_fill: 'รอกรอกลำดับขั้น',
+                            complete: 'ส่งลำดับขั้นเรียบร้อย',
+                        }
 
+                        const submitStatus = submitStatusTitleList[course.submitStatus]
                         return (
                             <tr key={course.class_id} >
                                 <td className='text-center'>{rowNumber}</td>
@@ -177,7 +202,8 @@ const ListCourse = () => {
                                 <td className='text-center'>{course.seclec}</td>
                                 <td className='text-center'>{course.seclab}</td>
                                 <td>{course.course_title}</td>
-                                <td className='text-center'>{courseTermTitle}</td>
+                                <td className='text-center'>{course.courseTermTitle}</td>
+                                <td>{submitStatus}</td>
                                 <td className={'text-center ' + studntAmountTextColor}>{course.filled_student + "/" + course.all_student}</td>
                                 <td>
                                     <ButtonGroup>

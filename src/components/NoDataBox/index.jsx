@@ -1,4 +1,5 @@
 import { Container, Button } from "react-bootstrap"
+import PropTypes from 'prop-types';
 
 const NoDataBox = (props) => {
     const msg = props.msg
@@ -10,6 +11,10 @@ const NoDataBox = (props) => {
             <Button variant='outline-secondary' href='./'>กลับไปหน้าแรก</Button>
         </Container>
     )
+}
+
+NoDataBox.propTypes = {
+    msg: PropTypes.string
 }
 
 export default NoDataBox
