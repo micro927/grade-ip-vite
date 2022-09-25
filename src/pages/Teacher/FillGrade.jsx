@@ -209,6 +209,9 @@ function FillGrade() {
                                 navigate('/teacher')
                             })
                         }
+                        else {
+                            ////////// swal to handle error (400, affectedRows<1)
+                        }
                     }).catch((error) => {
                         console.error('SAVE API:', error)
                     })
