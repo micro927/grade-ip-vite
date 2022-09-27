@@ -1,0 +1,87 @@
+.wrapper-progress-stepper {
+  width: 100%;
+}
+
+.progress-stepper {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  counter-reset: step;
+}
+
+.progress-stepper li {
+  list-style-type: none;
+  float: left;
+  width: 25%;
+  position: relative;
+  text-align: center;
+}
+
+.progress-stepper li.stepper {
+  width: 25%;
+}
+
+.progress-stepper li:before {
+  /* content: " "; */
+  content: counter(step);
+  counter-increment: step;
+  line-height: 30px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: block;
+  text-align: center;
+  margin: 0 auto 10px;
+  background-color: white;
+}
+
+.progress-stepper li:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: #ddd;
+  top: 15px;
+  left: -50%;
+  z-index: -1;
+}
+
+.progress-stepper li:first-child:after {
+  content: none;
+}
+
+.progress-stepper li.active {
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.progress-stepper li.active:before {
+  border-color: #ddd;
+  background-color: #28a745;
+}
+
+.progress-stepper .active:after {
+  background-color: #28a745;
+}
+
+.progress-stepper li.rejected {
+  color: #dc3545;
+}
+
+.progress-stepper li.rejected:before {
+  border-color: #dc3545;
+}
+
+.progress-stepper .rejected:after {
+  background-color: #dc3545;
+}
+
+.progress-stepper li.disabled {
+  pointer-events: none;
+}
+
+.color-text-stepper-display {
+  color: #28a745;
+}

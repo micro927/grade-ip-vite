@@ -13,7 +13,6 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
-import NoDataBox from '../../components/NoDataBox';
 
 function FillGrade() {
     const loginInfo = JSON.parse(localStorage.getItem('loginInfo'))
@@ -180,43 +179,50 @@ function FillGrade() {
     }
 
     const handleClickConfirm = () => {
-        const textForCheck = `
+        if (countGradeChange > 0) {
+            const textForCheck = `
         <p><span>${courseDetail.courseno} (${courseDetail.seclec} -${courseDetail.seclab}) <br> ${courseDetail.course_title}</span></p> 
         <p>จำนวนนักศึกษาที่แก้ไข : <span>${countGradeChange} ราย</span></p>
         `
-        Swal.fire({
-            title: 'ยืนยันการบันทึกลำดับขั้น ?',
-            html: textForCheck,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'ยืนยันการบันทึก',
-            cancelButtonText: 'ตรวจสอบอีกครั้ง',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .post(`${appApiHost}/teacher/save/${classId}`, studentList, {
-                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
-                    }).then((response) => {
-                        const { status, affectedRows } = response.data
-                        console.log(affectedRows || 'no affectedRows');
-                        if (status == 'ok' && affectedRows > 0) {
-                            Swal.fire({
-                                title: 'บันทึกข้อมูลแล้ว',
-                                icon: 'success',
-                                confirmButtonText: 'ตกลง',
-                                timer: '3000',
-                            }).then(() => {
-                                navigate('/teacher')
-                            })
-                        }
-                        else {
-                            ////////// swal to handle error (400, affectedRows<1)
-                        }
-                    }).catch((error) => {
-                        console.error('SAVE API:', error)
+            Swal.fire({
+                title: 'ยืนยันการบันทึกลำดับขั้น ?',
+                html: textForCheck,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยันการบันทึก',
+                cancelButtonText: 'ตรวจสอบอีกครั้ง',
+                showLoaderOnConfirm: true,
+                backdrop: true,
+                preConfirm: async () => {
+                    return axios
+                        .post(`${appApiHost}/teacher/save/${classId}`, studentList, {
+                            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
+                        }).then((response) => {
+                            return response.data
+                        }).catch((error) => {
+                            console.log(error);
+                            Swal.showValidationMessage(
+                                `Save API failed: ${error.response.data}`
+                            )
+                        })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { status, affectedRows } = result.value
+                    Swal.fire({
+                        title: `บันทึกข้อมูลแล้ว ${affectedRows} ราย`,
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        timer: '3000',
+                    }).then(() => {
+                        navigate('/teacher')
                     })
+
+                }
             }
-        })
+            )
+        }
     }
 
     const handleClickBack = () => {
@@ -322,12 +328,12 @@ function FillGrade() {
                         )
                     })}
                 </tbody>
-            </Table> : <NoDataBox msg='Loading...' />}
+            </Table> : <h4 className='my-5 text-center'>Loading........</h4>}
             <hr />
             <Row className=' justify-content-end'>
                 <Col sm={3}>
                     <div className='d-grid'>
-                        <Button variant='success' onClick={handleClickConfirm}>บันทึกลำดับขั้น</Button>
+                        <Button variant='success' disabled={countGradeChange == 0} onClick={handleClickConfirm}>บันทึกลำดับขั้น</Button>
                     </div>
                 </Col>
                 <Col sm={3}>

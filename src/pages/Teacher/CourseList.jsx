@@ -10,9 +10,7 @@ import {
 } from 'react-bootstrap';
 import axios from 'axios';
 import readXlsxFile from 'read-excel-file/web-worker'
-
 import MainLayout from '../../layouts/MainLayout'
-import NoDataBox from '../../components/NoDataBox';
 import FileUploaderButton from '../../components/FileUploaderButton';
 import Swal from 'sweetalert2';
 
@@ -217,7 +215,7 @@ const ListCourse = () => {
                         )
                     })}
                 </tbody>
-            </Table> : <NoDataBox msg="Loading ...." />}
+            </Table> : <h4 className='my-5 text-center'>Loading........</h4>}
         </MainLayout>
     )
 }

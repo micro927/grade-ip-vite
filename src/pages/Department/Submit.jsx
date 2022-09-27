@@ -6,9 +6,9 @@ import { Table, Button, Form } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
 import MainLayout from "../../layouts/MainLayout";
+import StepStatusBar from '../../components/StepStatusBar'
 import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
-
 
 const DepartmentSubmit = () => {
     const gradeType = localStorage.getItem('gradeType') ?? false
@@ -65,12 +65,10 @@ const DepartmentSubmit = () => {
                         <thead className='tableHead'>
                             <tr className='text-center'>
                                 <th>ที่</th>
+                                <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
                                 <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
                                 <th>ชื่อกระบวนวิชา</th>
-                                <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                                <th>สถานะการกรอก<br />อักษรลำดับขั้น</th>
-                                <th>ผู้กรอก<br />อักษรลำดับขั้น</th>
-                                <th>ผู้ยืนยัน<br />ระดับภาควิชา</th>
+                                <th>สถานะการส่ง<br />ลำดับขั้นแก้ {gradeTypeTitle}</th>
                                 <th>การดำเนินการ</th>
 
                             </tr>
@@ -82,16 +80,41 @@ const DepartmentSubmit = () => {
                                 const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
                                 const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
                                 const isShowAction = course.deptuser_submit_itaccountname == null
+                                const submitStatusTitleList = {
+                                    wait_dept: {
+                                        step: 1,
+                                        title: 'รอภาควิชาฯ ยืนยัน'
+                                    },
+                                    wait_fac: {
+                                        step: 2,
+                                        title: 'รอคณะยืนยัน'
+                                    },
+                                    wait_deliver: {
+                                        step: 3,
+                                        title: 'รอคณะนำส่ง'
+                                    },
+                                    wait_reg: {
+                                        step: 4,
+                                        title: 'รอสำนักทะเบียนฯ ยืนยัน'
+                                    },
+                                    wait_fill: {
+                                        step: 5,
+                                        title: 'รอกรอกลำดับขั้น'
+                                    },
+                                    complete: {
+                                        step: 6,
+                                        title: 'ส่งลำดับขั้นเรียบร้อย'
+                                    },
+                                }
 
+                                const submitStatus = submitStatusTitleList[course.submit_status]
                                 return (
                                     <tr key={course.class_id} >
                                         <td className='text-center'>{rowNumber}</td>
+                                        <td className='text-center'>{courseTermTitle}</td>
                                         <td className='text-center'>{courseLecLab}</td>
                                         <td>{course.course_title}</td>
-                                        <td className='text-center'>{courseTermTitle}</td>
-                                        <td className={'text-center ' + studntAmountTextColor}>กรอกแล้ว {course.filled_student + "/" + course.all_student} ราย</td>
-                                        <td></td>
-                                        <td>{course.deptuser_submit_itaccountname}</td>
+                                        <td><StepStatusBar classData={course} /></td>
                                         <td>
                                             {course.is_fill == 1
                                                 ?
