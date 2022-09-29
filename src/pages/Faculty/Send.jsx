@@ -8,29 +8,30 @@ import axios from 'axios';
 import MainSidebarLayout from "../../layouts/MainSidebarLayout";
 import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
-import { Prev } from 'react-bootstrap/esm/PageItem';
+import { datetimeTextThai } from '../../utils';
 
 
 const FacultySend = () => {
     const gradeType = localStorage.getItem('gradeType') ?? false
+    const { organization_name_TH } = JSON.parse(localStorage.getItem('loginInfo'))
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
     const ref = useRef()
     const [courseList, setCourseList] = useState([]);
     const [sendCourseState, setSendCourseState] = useState({});
 
+
     const getCourseForFaculty = async () => {
         const appApiHost = import.meta.env.VITE_API_HOST
         let result
         await axios
-            .get(`${appApiHost}/department/courselist`, {
+            .get(`${appApiHost}/faculty/coursefordeliverlist`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
                 params: { gradeType: gradeType }
             })
             .then(async (response) => {
                 result = await response.data
                 setCourseList(result)
-                // console.log('rrrrrrrrrrrrr');
                 return result
 
             })
@@ -111,7 +112,7 @@ const FacultySend = () => {
             <h5 className='text-secondary'>ประวัติการนำส่ง</h5>
             <h3></h3>
         </div>}>
-            <h2>นำส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
+            <h2>นำส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle} {organization_name_TH}</h2>
             {courseList.length
                 ?
                 <>
@@ -123,13 +124,13 @@ const FacultySend = () => {
                         <thead className='tableHead'>
                             <tr className='text-center'>
                                 <th>เลือก</th>
-                                <th>รหัสกระบวนวิชา</th>
-                                <th>ตอนบรรยาย</th>
-                                <th>ตอนปฏิบัติการ</th>
+                                <th>ที่</th>
                                 <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                                <th>จำนวนนักศึกษา<br />ทั้งหมด</th>
-                                <th>ส่งเกรด</th>
-                                <th>หมายเหตุ</th>
+                                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
+                                <th>ชื่อกระบวนวิชา</th>
+
+                                <th>จำนวนนักศึกษา<br />ที่แก้ไขลำดับขั้น</th>
+                                <th>เจ้าหน้าที่คณะที่ยืนยัน</th>
                             </tr>
                         </thead>
                         <tbody className='tableBody'>
@@ -151,14 +152,12 @@ const FacultySend = () => {
                                                 onChange={e => handleCheck(e.target.checked, course.class_id)}
                                             />
                                         </td>
-                                        <td className='text-center'>{course.courseno} {course.class_id}</td>
-                                        <td className='text-center'>{course.seclec}</td>
-                                        <td className='text-center'>{course.seclab}</td>
+                                        <td className='text-center'>{rowNumber}</td>
                                         <td className='text-center'>{courseTermTitle}</td>
-                                        <td className='text-center'>{course.all_student}</td>
-                                        <td className='text-center'>{course.filled_student}</td>
-                                        <td></td>
-                                        <td>{course.deptuser_submit_itaccountname}</td>
+                                        <td className=''>{courseLecLab}</td>
+                                        <td className=''>{course.course_title}</td>
+                                        <td className='text-center'>{course.all_student}/{course.filled_student}</td>
+                                        <td>{course.facuser_submit_itaccountname} ({datetimeTextThai(course.facuser_submit_datetime)})</td>
                                     </tr>
                                 )
                             })}

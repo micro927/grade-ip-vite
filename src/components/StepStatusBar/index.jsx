@@ -1,11 +1,7 @@
 import './index.scss'
-import {
-    Button,
-    OverlayTrigger,
-    Tooltip
-} from 'react-bootstrap'
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2'
+import { datetimeTextThai, getAllSubmitStatusTitle } from '../../utils';
 
 function StepStatusBar({ classData }) {
     const {
@@ -18,88 +14,93 @@ function StepStatusBar({ classData }) {
         facuser_submit_itaccountname,
         facuser_submit_datetime,
         deliver_id,
-        deliver_datetime,
+        facuser_deliver_itaccountname,
+        facuser_deliver_datetime,
         reg_submit_itaccountname,
         reg_submit_datetime,
         all_student,
-        fill_student,
-        is_fill
+        filled_student
     } = classData || {}
+    const allStatusTitle = getAllSubmitStatusTitle()
 
-    let barContent = [
+
+    const content = [
         {
-            status: 'wait_dept',
-            step: 1,
-            swalTitle: 'สถานะการกรอกลำดับขั้น',
-            swalHtml: `
-            <p>จำนวน ${all_student} ราย</p>
-            <p>กรอกลำดับขั้นล่าสุดเมื่อ ${last_date}</p>
+            status: 0,
+            statusTitle: allStatusTitle[0],
+            swalDoneTitle: null,
+            swalDoneDetailHtml: null,
+        },
+        {
+            status: 1,
+            statusTitle: allStatusTitle[1],
+            swalDoneTitle: 'กรอกลำดับขั้นแล้ว',
+            swalDoneDetailHtml: `
+            <p>จำนวนนักศึกษาที่กรอกลำดับขั้นแล้ว: ${filled_student}/${all_student} ราย</p>
             `,
-            thisStatusTitle: 'รอภาควิชาฯ ยืนยัน',
         },
         {
-            status: 'wait_fac',
-            step: 2,
-            swalTitle: '',
-            swalHtml: '',
-            thisStatusTitle: 'รอคณะยืนยัน',
+            status: 2,
+            statusTitle: allStatusTitle[2],
+            swalDoneTitle: 'ภาควิชายืนยันแล้ว',
+            swalDoneDetailHtml: `
+                    ผู้ยืนยันลำดับขั้น: ${deptuser_submit_itaccountname}
+                    <br>
+                    วันเวลาที่ยืนยัน: ${datetimeTextThai(deptuser_submit_datetime)}
+                `
         },
         {
-            status: 'wait_deliver',
-            step: 3,
-            swalTitle: '',
-            swalHtml: '',
-            thisStatusTitle: 'รอคณะนำส่ง',
+            status: 3,
+            statusTitle: allStatusTitle[3],
+            swalDoneTitle: 'คณะยืนยันแล้ว',
+            swalDoneDetailHtml: `
+                    ผู้ยืนยันลำดับขั้น (ระดับคณะ) : ${facuser_submit_itaccountname}
+                    <br>
+                    วันเวลาที่ยืนยัน: ${datetimeTextThai(facuser_submit_datetime)}
+                `
         },
         {
-            status: 'wait_reg',
-            step: 4,
-            swalTitle: '',
-            swalHtml: '',
-            thisStatusTitle: 'รอสำนักทะเบียนฯ ยืนยัน',
+            status: 4,
+            statusTitle: allStatusTitle[4],
+            swalDoneTitle: '',
+            swalDoneDetailHtml: '',
         },
         {
-            status: 'complete',
-            step: 5,
-            title: 'ส่งลำดับขั้นเรียบร้อย',
-            swalTitle: '',
-            swalHtml: '',
+            status: 5,
+            statusTitle: allStatusTitle[5],
+            swalDoneTitle: '',
+            swalDoneDetailHtml: '',
         },
     ]
-
-    const thisStatus = barContent.find(e => e.status == submit_status)
-    const { step, thisStatusTitle } = thisStatus || { step: 0, thisStatusTitle: 'รอกรอกลำดับขั้น' }
-
-    barContent = barContent.map(e => {
-        return {
-            ...e,
-            stepClass: e.step <= step ? 'active' : 'disabled'
-        }
-    })
+    const { status, statusTitle } = content.find(e => e.status == submit_status)
+    const contentBar = content.filter(e => e.status > 0)
 
     return (
         <>
             <div className='text-center'>
                 <div className="wrapper-progress-stepper">
                     <ul className="progress-stepper">
-                        {barContent.map(e => {
+                        {contentBar.map(e => {
+                            const statusClass = e.status <= status ? 'active' : 'disabled'
                             return (
-                                <li key={e.step} onClick={() => Swal.fire(
+                                <li key={e.status} onClick={() => Swal.fire(
                                     {
-                                        title: e.swalTitle,
-                                        html: e.swalHtml,
+                                        title: e.swalDoneTitle,
+                                        html: e.swalDoneDetailHtml,
+                                        icon: "info",
+                                        iconColor: "#28a745",
                                         showConfirmButton: false,
                                         showCancelButton: true,
                                         cancelButtonText: 'ปิด',
                                     }
-                                )} className={`d-flex flex-column justify-content-between align-items-center ${e.stepClass}`}>
+                                )} className={`d- flex flex - column justify - content - between align - items - center ${statusClass}`}>
                                 </li>
                             )
                         })
                         }
                     </ul>
                 </div>
-                <em className='small text-center'>{thisStatusTitle}</em>
+                <em className='small text-center'>{statusTitle}</em>
             </div>
         </>
     )

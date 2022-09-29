@@ -1,3 +1,4 @@
+import './index.scss'
 import '../../styles/table.scss'
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
@@ -13,13 +14,14 @@ import readXlsxFile from 'read-excel-file/web-worker'
 import MainLayout from '../../layouts/MainLayout'
 import FileUploaderButton from '../../components/FileUploaderButton';
 import Swal from 'sweetalert2';
+import { getAllSubmitStatusTitle } from '../../utils';
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
-
+    const allSubmitStatusTitle = getAllSubmitStatusTitle()
     const getCourseForTeacher = async () => {
         const appApiHost = import.meta.env.VITE_API_HOST
         let result
@@ -183,16 +185,7 @@ const ListCourse = () => {
                     {courseList.map((course, index) => {
                         const rowNumber = index + 1
                         const studntAmountTextColor = course.isAllfilled ? 'text-success' : ''
-                        const submitStatusTitleList = {
-                            wait_dept: 'รอภาควิชาฯ ยืนยัน',
-                            wait_fac: 'รอคณะยืนยัน',
-                            wait_deliver: 'รอคณะนำส่ง',
-                            wait_reg: 'รอสำนักทะเบียนฯ ยืนยัน',
-                            wait_fill: 'รอกรอกลำดับขั้น',
-                            complete: 'ส่งลำดับขั้นเรียบร้อย',
-                        }
-
-                        const submitStatus = submitStatusTitleList[course.submitStatus]
+                        const submitStatusText = allSubmitStatusTitle[course.submit_status]
                         return (
                             <tr key={course.class_id} >
                                 <td className='text-center'>{rowNumber}</td>
@@ -201,13 +194,20 @@ const ListCourse = () => {
                                 <td className='text-center'>{course.seclab}</td>
                                 <td>{course.course_title}</td>
                                 <td className='text-center'>{course.courseTermTitle}</td>
-                                <td>{submitStatus}</td>
+                                <td className='text-center'>{submitStatusText}</td>
                                 <td className={'text-center ' + studntAmountTextColor}>{course.filled_student + "/" + course.all_student}</td>
                                 <td>
                                     <ButtonGroup>
-                                        <Button variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}><Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
-                                        <Button variant='outline-secondary' onClick={() => onClickDownload(course.class_id)}><Icon.FileEarmarkArrowDown /> Download Excel</Button>
-                                        <FileUploaderButton uploadId={course.class_id} handleFileFunction={onFileUploaded} variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</FileUploaderButton>
+                                        {course.submit_status >= 2
+                                            ?
+                                            <Button className='action-button-group' variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}> <Icon.CardList />  ดูข้อมูล</Button>
+                                            :
+                                            <>
+                                                <Button className='action-button-group' variant='outline-primary' onClick={() => onClickFillMenu(course.class_id)}> <Icon.KeyboardFill /> กรอกลำดับขั้น</Button>
+                                                <Button variant='outline-secondary' onClick={() => onClickDownload(course.class_id)}><Icon.FileEarmarkArrowDown /> Download Excel</Button>
+                                                <FileUploaderButton uploadId={course.class_id} handleFileFunction={onFileUploaded} variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</FileUploaderButton>
+                                            </>
+                                        }
                                         <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
                                     </ButtonGroup>
                                 </td>

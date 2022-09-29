@@ -3,7 +3,7 @@ import './index.scss'
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
-// import * as Icon from 'react-bootstrap-icons';
+import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import {
@@ -11,8 +11,10 @@ import {
     Form,
     Button,
     Row,
-    Col
+    Col,
+    Card
 } from 'react-bootstrap';
+import { datetimeTextThai } from '../../utils';
 
 function FillGrade() {
     const loginInfo = JSON.parse(localStorage.getItem('loginInfo'))
@@ -32,6 +34,7 @@ function FillGrade() {
     const [gradeOption, setGradeOption] = useState([]);
     const [courseDetail, setCourseDetail] = useState([]);
     const [countGradeChange, setCountGradeChange] = useState(-1);
+    const [isEditable, setIsEditable] = useState(true);
 
     const getCourseDetail = async (classId) => {
         let result = []
@@ -226,7 +229,7 @@ function FillGrade() {
     }
 
     const handleClickBack = () => {
-        navigate('/teacher')
+        navigate(-1)
     }
 
     const isFirstRender = useRef(true)
@@ -245,6 +248,10 @@ function FillGrade() {
             return countGradeChangeNow.length
         })
     }, [studentList]);
+
+    useEffect(() => {
+        setIsEditable(courseDetail.submission_id == null)
+    }, [courseDetail]);
 
     useEffect(() => {
         pushExcelGradeToStudentList()
@@ -285,8 +292,20 @@ function FillGrade() {
             <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
             <div className='text-secondary d-flex justify-content-between'>
                 <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab}) |  ${courseDetail.course_title}`}</h4>
-                <h4>ภาคการศึกษาที่ได้รับเกรด P 1/2565</h4>
+                <h4>ภาคการศึกษาที่ได้รับอักษร {gradeTypeTitle} : {courseDetail.semester}/{courseDetail.year}</h4>
             </div>
+            {!isEditable &&
+                <Card className='rounded-0 my-4'>
+                    <Card.Body>
+                        <h4 className='py-2'>สถานะการดำเนินการ</h4>
+                        {courseDetail.submission_id && <p><Icon.CheckCircleFill /> เจ้าหน้าที่ภาควิชายืนยันแล้ว โดย: {courseDetail.deptuser_submit_itaccountname}, วันเวลาที่ยืนยัน: {datetimeTextThai(courseDetail.deptuser_submit_datetime)}</p>}
+                        {courseDetail.facuser_submit_itaccountname && <p><Icon.CheckCircleFill /> เจ้าหน้าที่คณะยืนยันแล้ว โดย: {courseDetail.facuser_submit_itaccountname}, วันเวลาที่ยืนยัน: {datetimeTextThai(courseDetail.facuser_submit_datetime)}</p>}
+                        {courseDetail.deliver_id && <p><Icon.CheckCircleFill /> เจ้าหน้าที่คณะนำส่งแล้ว วันเวลาที่นำส่ง: {courseDetail.facuser_deliver_datetime}</p>}
+                        {courseDetail.reguser_submit_itaccountname && <p><Icon.CheckCircleFill /> สำนักทะเบียนยืนยันแล้ว, วันเวลาที่ยืนยัน : {courseDetail.reguser_submit_datetime}</p>}
+                    </Card.Body>
+                </Card>
+            }
+
             {studentList.length ? <Table responsive='xl' bordered hover className='table-fillgrade mt-2'>
                 <thead className='tableHead'>
                     <tr className='text-center'>
@@ -307,7 +326,7 @@ function FillGrade() {
                             const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : '' */}
                         const rowNumber = index + 1
                         const enrollStatusCode = student.enroll_status.substring(0, 2)
-                        const IsEnrolled = enrollStatusCode != '0_'
+                        const isEnrolled = enrollStatusCode != '0_'
 
                         return (
                             <tr key={student.student_id} className={'tr-' + enrollStatusCode} >
@@ -318,7 +337,7 @@ function FillGrade() {
                                 <td className='text-center'>{student.enroll_status_text}</td>
                                 <td className='text-center'>{student.grade_old}</td>
                                 <td>
-                                    <Form.Select onChange={handleGradeChange} disabled={!IsEnrolled} name={student.student_id} value={student.edit_grade}>
+                                    <Form.Select onChange={handleGradeChange} disabled={!isEnrolled || !isEditable} name={student.student_id} value={student.edit_grade}>
                                         {gradeOption.map((grade) => <option key={grade} value={grade}>{grade}</option>)}
                                     </Form.Select>
                                 </td>
@@ -333,7 +352,7 @@ function FillGrade() {
             <Row className=' justify-content-end'>
                 <Col sm={3}>
                     <div className='d-grid'>
-                        <Button variant='success' disabled={countGradeChange == 0} onClick={handleClickConfirm}>บันทึกลำดับขั้น</Button>
+                        {isEditable && <Button variant='success' disabled={countGradeChange == 0} onClick={handleClickConfirm}>บันทึกลำดับขั้น</Button>}
                     </div>
                 </Col>
                 <Col sm={3}>
