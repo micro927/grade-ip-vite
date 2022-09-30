@@ -91,8 +91,49 @@ const FacultySend = () => {
                 confirmButtonText: 'ยืนยันการนำส่ง',
                 showCancelButton: true,
                 cancelButtonText: 'ตรวจสอบอีกครั้ง',
+            }).then(() => {
+                Swal.fire(
+                    {
+                        title: 'นำส่งสำเร็จแล้ว',
+                        html: `จำนวน ${countChecked} กระบวนวิชา`,
+                        icon: 'success'
+                    })
             })
         }
+    }
+
+    const handleClickDeliver = (deliverId) => {
+        Swal.fire({
+            title: 'รหัสการนำส่ง 0000001 (1 รายการ)',
+            width: '70vw',
+            confirmButtonText: `พิมพ์ใบนำส่ง`,
+            showCancelButton: true,
+            cancelButtonText: `ปิด`,
+            html: `
+    <hr />
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>ที่</th>
+                <th>ภาคการศึกษา<br />ที่ได้รับอักษร ${gradeTypeTitle}</th>
+                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
+                <th>ชื่อกระบวนวิชา</th>
+                <th>เจ้าหน้าที่คณะที่นำส่ง</th>
+                <th>เวลาที่นำส่ง</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>2/2564</td>
+                <td>001489 (000-016)</td>
+                <td>INDEPENDENT STUDY</td>
+                <td>sitthiphon.s</td>
+                <td>2022-09-30 21:23:24</td>
+            </tr></tbody>
+    </table>
+`
+        })
     }
 
     useEffect(() => {
@@ -111,7 +152,7 @@ const FacultySend = () => {
         <MainSidebarLayout sidebarContent={<div className='mt-4'>
             <h5 className='text-secondary'>ประวัติการนำส่ง</h5>
             <hr />
-            <h6>2022-09-30 21:23:24 (1 รายการ)</h6>
+            <h6 onClick={() => handleClickDeliver(1)}>2022-09-30 21:23:24 (1 รายการ)</h6>
         </div>}>
             <h2>นำส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle} {organization_name_TH}</h2>
             {courseList.length
@@ -129,7 +170,6 @@ const FacultySend = () => {
                                     <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
                                     <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
                                     <th>ชื่อกระบวนวิชา</th>
-
                                     <th>จำนวนนักศึกษา<br />ที่แก้ไขลำดับขั้น</th>
                                     <th>เจ้าหน้าที่คณะที่ยืนยัน</th>
                                 </tr>
@@ -147,7 +187,7 @@ const FacultySend = () => {
                                             <td className='text-center'>
                                                 <Form.Check
                                                     type='checkbox'
-                                                    id={`checkbox-${course.class_id}`}
+                                                    id={`checkbox - ${course.class_id} `}
                                                     name={course.classId}
                                                     value={course.classId}
                                                     checked={course.isChecked}
