@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import axios from 'axios';
 import AlertLayout from '../../layouts/AlertLayout'
+import Swal from 'sweetalert2';
 
 const redirectToCmuOauth = () => {
     const oauthLoginUrl = import.meta.env.VITE_CMU_OAUTH_LOGIN_URL
@@ -29,7 +30,7 @@ const Logout = () => {
 }
 
 const Authentication = () => {
-    const isLogin = localStorage.getItem('isLogin')
+    const isLogin = localStorage.getItem('isLogin') || false
 
     function DoAuthenticate() {
         const [searchParams] = useSearchParams()
@@ -40,7 +41,7 @@ const Authentication = () => {
             // console.log('ยิง AXIOS');
             axios
                 .get(`${appLoginUrl}?code=${cmuCode}`)
-                .then(function (response) {
+                .then((response) => {
                     // handle success
                     localStorage.setItem('loginInfo', JSON.stringify(response.data))
                     localStorage.setItem('isLogin', true)
@@ -48,11 +49,14 @@ const Authentication = () => {
                     console.log(response.data.cmuitaccount_name);
                     window.location.href = '/'
                 })
-                .catch(function (error) {
-                    // handle error
+                .catch((error) => {
                     console.log(error);
+                    Swal.fire(error.message)
+                        .then(() => {
+                            window.location.href = '/'
+                        })
+                    // handle error
                     // window.location.href = '/500'
-                    window.location.href = '/'
                 })
         } else {
             redirectToCmuOauth
@@ -69,7 +73,9 @@ const Authentication = () => {
                 </div>
             </AlertLayout>
             :
-            <Navigate to='/' replace />
+            <>
+            </>
+        ///<Navigate to='/' replace />
     )
 }
 
