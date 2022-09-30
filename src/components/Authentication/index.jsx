@@ -2,10 +2,12 @@ import Spinner from 'react-bootstrap/Spinner';
 import {
     Navigate,
     useSearchParams,
+    useNavigate
 } from 'react-router-dom';
 import axios from 'axios';
 import AlertLayout from '../../layouts/AlertLayout'
 import Swal from 'sweetalert2';
+import { useState } from 'react';
 
 const redirectToCmuOauth = () => {
     const oauthLoginUrl = import.meta.env.VITE_CMU_OAUTH_LOGIN_URL
@@ -36,27 +38,20 @@ const Authentication = () => {
         const [searchParams] = useSearchParams()
         const cmuCode = searchParams.get("code") ?? false
         if (cmuCode) {
-            //axios api
             const appLoginUrl = (import.meta.env.VITE_API_HOST) + '/login'
-            // console.log('ยิง AXIOS');
             axios
                 .get(`${appLoginUrl}?code=${cmuCode}`)
                 .then((response) => {
-                    // handle success
-                    localStorage.setItem('loginInfo', JSON.stringify(response.data))
+                    localStorage.setItem('loginInfo', JSON.stringify(response?.data))
                     localStorage.setItem('isLogin', true)
-                    localStorage.setItem('userToken', response.data.userToken)
+                    localStorage.setItem('userToken', response.data?.userToken)
                     console.log(response.data.cmuitaccount_name);
                     window.location.href = '/'
                 })
-                .catch((error) => {
-                    console.log(error);
-                    Swal.fire(error.message)
-                        .then(() => {
-                            window.location.href = '/'
-                        })
-                    // handle error
-                    // window.location.href = '/500'
+                .catch(({ code, message }) => {
+                    console.log(code, message);
+                    window.location.href = '/500'
+
                 })
         } else {
             redirectToCmuOauth
@@ -73,9 +68,7 @@ const Authentication = () => {
                 </div>
             </AlertLayout>
             :
-            <>
-            </>
-        ///<Navigate to='/' replace />
+            <Navigate to='/' replace />
     )
 }
 

@@ -6,9 +6,7 @@ import { Table, Button, Form } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
 import MainLayout from "../../layouts/MainLayout";
-import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
-import { Prev } from 'react-bootstrap/esm/PageItem';
 import { datetimeTextThai } from '../../utils';
 
 
@@ -82,11 +80,6 @@ const AdminVerify = () => {
                 </thead>
                 <tbody className='tableBody'>
                     {courseList.map((course, index) => {
-                        const rowNumber = index + 1
-                        const courseLecLab = course.courseno + ' (' + course.seclec + '-' + course.seclab + ')'
-                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
-                        const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
-                        const isShowAction = course.deptuser_submit_itaccountname == null
                         return (
                             <tr key={course.class_id} >
                                 <td className='text-center'>000001</td>

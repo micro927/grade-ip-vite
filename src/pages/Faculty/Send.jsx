@@ -12,16 +12,17 @@ import { datetimeTextThai } from '../../utils';
 
 
 const FacultySend = () => {
+    const appApiHost = import.meta.env.VITE_API_HOST
     const gradeType = localStorage.getItem('gradeType') ?? false
-    const { organization_name_TH } = JSON.parse(localStorage.getItem('loginInfo'))
+    const { organization_name_TH, organization_code } = JSON.parse(localStorage.getItem('loginInfo'))
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
-    const [courseList, setCourseList] = useState([]);
-    const [countChecked, setCountChecked] = useState(-1);
+    const [courseList, setCourseList] = useState([])
+    const [courseListDelivered, setCourseListDelivered] = useState([])
+    const [countChecked, setCountChecked] = useState(-1)
 
 
     const getCourseForFaculty = async () => {
-        const appApiHost = import.meta.env.VITE_API_HOST
         let result
         await axios
             .get(`${appApiHost}/faculty/coursefordeliverlist`, {
@@ -30,13 +31,17 @@ const FacultySend = () => {
             })
             .then(async (response) => {
                 result = await response.data
-                const courseListWithState = result.map(course => {
+                const resultNotDeliver = result.filter(c => c.deliver_id == null)
+                const resultDelivered = result.filter(c => c.deliver_id != null).sort((a, b) => b.facuser_deliver_datetime - a.facuser_deliver_datetime)
+
+                const courseListWithState = resultNotDeliver.map(course => {
                     return {
                         ...course,
                         isChecked: false
                     }
                 })
                 setCourseList(courseListWithState)
+                setCourseListDelivered(resultDelivered)
                 return result
 
             })
@@ -91,13 +96,40 @@ const FacultySend = () => {
                 confirmButtonText: 'ยืนยันการนำส่ง',
                 showCancelButton: true,
                 cancelButtonText: 'ตรวจสอบอีกครั้ง',
-            }).then(() => {
-                Swal.fire(
-                    {
-                        title: 'นำส่งสำเร็จแล้ว',
-                        html: `จำนวน ${countChecked} กระบวนวิชา`,
-                        icon: 'success'
+                showLoaderOnConfirm: true,
+                backdrop: true,
+                preConfirm: async () => {
+                    const courstListChecked = courseList.filter(c => c.isChecked == true)
+                    const classIdList = courstListChecked.map(c => c.class_id)
+                    // const facultyId = organization_code
+                    const facultyId = '01'
+
+                    return await axios
+                        .post(`${appApiHost}/faculty/delivercreate`, {
+                            classIdList,
+                            facultyId
+                        }, {
+                            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
+                        }).then((response) => {
+                            return response.data
+                        }).catch((error) => {
+                            console.log(error.response.data);
+                            Swal.showValidationMessage(`Deliver API failed`)
+                        })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // const { status, affectedRows } = result.value
+                    Swal.fire({
+                        title: `สร้างเอกสารนำส่งลำดับขั้นแล้ว`,
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        timer: '3000',
+                    }).then(() => {
+                        window.location.reload()
                     })
+                }
             })
         }
     }
@@ -108,31 +140,31 @@ const FacultySend = () => {
             width: '70vw',
             confirmButtonText: `พิมพ์ใบนำส่ง`,
             showCancelButton: true,
+            showDenyButton: true,
+            denyButtonText: 'ssss',
             cancelButtonText: `ปิด`,
-            html: `
-    <hr />
-    <table class='table table-bordered'>
-        <thead>
-            <tr>
-                <th>ที่</th>
-                <th>ภาคการศึกษา<br />ที่ได้รับอักษร ${gradeTypeTitle}</th>
-                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
-                <th>ชื่อกระบวนวิชา</th>
-                <th>เจ้าหน้าที่คณะที่นำส่ง</th>
-                <th>เวลาที่นำส่ง</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>2/2564</td>
-                <td>001489 (000-016)</td>
-                <td>INDEPENDENT STUDY</td>
-                <td>sitthiphon.s</td>
-                <td>2022-09-30 21:23:24</td>
-            </tr></tbody>
-    </table>
-`
+            html: `<hr />
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>ที่</th>
+                                <th>ภาคการศึกษา<br />ที่ได้รับอักษร ${gradeTypeTitle}</th>
+                                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย-ตอนปฏิบัติการ)</th>
+                                <th>ชื่อกระบวนวิชา</th>
+                                <th>เจ้าหน้าที่คณะที่นำส่ง</th>
+                                <th>เวลาที่นำส่ง</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>2/2564</td>
+                                <td>001489 (000-016)</td>
+                                <td>INDEPENDENT STUDY</td>
+                                <td>sitthiphon.s</td>
+                                <td>2022-09-30 21:23:24</td>
+                            </tr></tbody>
+                    </table>`
         })
     }
 
@@ -152,9 +184,12 @@ const FacultySend = () => {
         <MainSidebarLayout sidebarContent={<div className='mt-4'>
             <h5 className='text-secondary'>ประวัติการนำส่ง</h5>
             <hr />
-            <h6 onClick={() => handleClickDeliver(1)}>2022-09-30 21:23:24 (1 รายการ)</h6>
+            <Button variant=''>
+                <h6 onClick={() => handleClickDeliver(1)}>2022-09-30 21:23:24 (1 ตอน)</h6>
+            </Button>
         </div>}>
             <h2>นำส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle} {organization_name_TH}</h2>
+            <h4 className='mt-4'>กระบวนวิชาที่รอนำส่งลำดับขั้น</h4>
             {courseList.length
                 ?
                 <>
@@ -168,7 +203,7 @@ const FacultySend = () => {
                                     <th>เลือก</th>
                                     <th>ที่</th>
                                     <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                                    <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
+                                    <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย-ตอนปฏิบัติการ)</th>
                                     <th>ชื่อกระบวนวิชา</th>
                                     <th>จำนวนนักศึกษา<br />ที่แก้ไขลำดับขั้น</th>
                                     <th>เจ้าหน้าที่คณะที่ยืนยัน</th>
@@ -214,27 +249,53 @@ const FacultySend = () => {
                             <Button variant='outline-secondary' className='px-4' onClick={handleCheckAll}><Icon.CardChecklist /> เลือกทั้งหมด</Button>
                         }
                     </div>
-                    <div className='my-5'>
-                        <hr />
-                    </div>
-                    <div>
-                        <h2>กระบวนวิชาที่นำส่งแล้ว</h2>
-                        <Table size='sm' hover responsive='xl' className='mt-4'>
-                            <thead className='tableHead'>
-                                <tr className='text-center'>
-                                    <th>ที่</th>
-                                    <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                                    <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
-                                    <th>ชื่อกระบวนวิชา</th>
-                                    <th>เจ้าหน้าที่คณะที่นำส่ง</th>
-                                    <th>เวลาที่นำส่ง</th>
-                                </tr>
-                            </thead>
-                        </Table>
-                    </div>
                 </>
-                : <NoDataBox msg={"ไม่พบกระบวนวิชาที่พร้อมนำส่ง"} />
+                : <div className='my-4 py-4 text-center text-secondary'>
+                    <h5>ไม่พบตอนที่รอนำส่งลำดับขั้น</h5>
+                </div>
             }
+            <div className='my-5'>
+                <hr />
+            </div>
+            <div>
+                <h4 className='mt-4'>กระบวนวิชาที่นำส่งแล้ว</h4>
+                {courseListDelivered.length
+                    ?
+                    <Table size='sm' hover responsive='xl' className='mt-4'>
+                        <thead className='tableHead'>
+                            <tr className='text-center'>
+                                <th>ที่</th>
+                                <th>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
+                                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย-ตอนปฏิบัติการ)</th>
+                                <th>ชื่อกระบวนวิชา</th>
+                                <th>เจ้าหน้าที่คณะที่นำส่ง</th>
+                                <th>เวลาที่นำส่ง</th>
+                            </tr>
+                        </thead>
+                        <tbody className='tableBody'>
+                            {courseListDelivered.map((course, index) => {
+                                const rowNumber = index + 1
+                                const courseLecLab = course.courseno + ' (' + course.seclec + '-' + course.seclab + ')'
+                                const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
+                                return (
+                                    <tr key={course.class_id} >
+                                        <td className='text-center'>{rowNumber}</td>
+                                        <td className='text-center'>{courseTermTitle}</td>
+                                        <td className='text-center'>{courseLecLab}</td>
+                                        <td className=''>{course.course_title}</td>
+                                        <td className='text-center'>{course.facuser_deliver_itaccountname}</td>
+                                        <td>{datetimeTextThai(course.facuser_deliver_datetime)}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                    : <div className='my-4 py-4 text-center text-secondary'>
+                        <h5>ไม่พบตอนที่นำส่งลำดับขั้นแล้ว</h5>
+                    </div>
+                }
+            </div>
+
         </MainSidebarLayout>
     )
 }

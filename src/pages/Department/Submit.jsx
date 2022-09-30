@@ -159,7 +159,7 @@ const DepartmentSubmit = () => {
                             <tr className='text-center'>
                                 <th width='1%'>ที่</th>
                                 <th width='10%'>ภาคการศึกษา<br />ที่ได้รับอักษร {gradeTypeTitle}</th>
-                                <th width='14%'>รหัสกระบวนวิชา<br />(ตอนบรรยาย - ตอนปฏิบัติการ)</th>
+                                <th width='14%'>รหัสกระบวนวิชา<br />(ตอนบรรยาย-ตอนปฏิบัติการ)</th>
                                 <th width='30%'>ชื่อกระบวนวิชา</th>
                                 <th width='15%'>สถานะการส่งลำดับขั้นแก้ {gradeTypeTitle}</th>
                                 <th width='30%'>การดำเนินการ</th>
