@@ -1,6 +1,6 @@
 import './index.scss'
 import '../../styles/table.scss'
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import * as Icon from 'react-bootstrap-icons';
 import {
@@ -9,6 +9,7 @@ import {
     ButtonGroup,
 
 } from 'react-bootstrap';
+import { AppContext } from '../../components/Provider';
 import axios from 'axios';
 import readXlsxFile from 'read-excel-file/web-worker'
 import MainLayout from '../../layouts/MainLayout'
@@ -17,6 +18,8 @@ import Swal from 'sweetalert2';
 import { getAllSubmitStatusTitle } from '../../utils';
 
 const ListCourse = () => {
+    const appApiHost = import.meta.env.VITE_API_HOST
+    const { AppThisSemester, AppThisYear } = useContext(AppContext)
     const [courseList, setCourseList] = useState([]);
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
@@ -68,7 +71,6 @@ const ListCourse = () => {
     }
 
     const onClickDownload = async (classId, option = 1) => {
-        const appApiHost = import.meta.env.VITE_API_HOST
         await axios
             .get(`${appApiHost}/teacher/exceldownload/${classId}`, {
                 responseType: 'blob', // important
@@ -79,14 +81,35 @@ const ListCourse = () => {
                 const href = URL.createObjectURL(response.data);
                 const link = document.createElement('a');
                 link.href = href;
-                link.setAttribute('download', classId + '.xlsx');
+                link.setAttribute('download', AppThisSemester + AppThisYear + '-' + classId + '.xlsx');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+                URL.revokeObjectURL(href);
             })
             .catch((error) => {
                 console.log('api download: ', error);
+            })
+    }
+
+    const onClickCMR = async (classId) => {
+        await axios
+            .get(`${appApiHost}/teacher/cmr541/${classId}`, {
+                responseType: 'blob', // important
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+            }).then((response) => {
+                const href = window.URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                link.href = href;
+                link.setAttribute('download', AppThisSemester + AppThisYear + '-' + classId + '.pdf');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link)
+                URL.revokeObjectURL(href);
+
+            })
+            .catch((error) => {
+                console.log('cmr54 download: ', error);
             })
     }
 
@@ -208,7 +231,7 @@ const ListCourse = () => {
                                                 <FileUploaderButton uploadId={course.class_id} handleFileFunction={onFileUploaded} variant='outline-success'><Icon.FileEarmarkArrowUpFill /> Upload Excel</FileUploaderButton>
                                             </>
                                         }
-                                        <Button variant='outline-primary'><Icon.FileEarmarkRuled /> CMR 54</Button>
+                                        <Button variant='outline-primary' onClick={() => onClickCMR(course.class_id)}><Icon.FileEarmarkRuled /> CMR 54</Button>
                                     </ButtonGroup>
                                 </td>
                             </tr>
