@@ -21,7 +21,7 @@ const AdminVerify = () => {
         const appApiHost = import.meta.env.VITE_API_HOST
         let result
         await axios
-            .get(`${appApiHost}/faculty/coursefordeliverlist`, {
+            .get(`${appApiHost}/admin/courseforverifylist`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
                 params: { gradeType: gradeType }
             })
