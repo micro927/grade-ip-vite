@@ -19,20 +19,20 @@ const FacultySend = () => {
     const navigate = useNavigate()
     const [courseList, setCourseList] = useState([])
     const [courseListDelivered, setCourseListDelivered] = useState([])
+    const [deliverIdList, setDeliverIdList] = useState([])
     const [countChecked, setCountChecked] = useState(-1)
 
 
-    const getCourseForFaculty = async () => {
-        let result
+    const getCourseForDeliver = async () => {
         await axios
             .get(`${appApiHost}/faculty/coursefordeliverlist`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
-                params: { gradeType: gradeType }
+                params: { gradeType }
             })
-            .then(async (response) => {
-                result = await response.data
-                const resultNotDeliver = result.filter(c => c.deliver_id == null)
-                const resultDelivered = result.filter(c => c.deliver_id != null).sort((a, b) => b.facuser_deliver_datetime - a.facuser_deliver_datetime)
+            .then(response => {
+                const { courseForDeliverList, deliverIdList } = response.data
+                const resultNotDeliver = courseForDeliverList.filter(c => c.deliver_id == null)
+                const resultDelivered = courseForDeliverList.filter(c => c.deliver_id != null).sort((a, b) => b.facuser_deliver_datetime - a.facuser_deliver_datetime)
 
                 const courseListWithState = resultNotDeliver.map(course => {
                     return {
@@ -42,8 +42,8 @@ const FacultySend = () => {
                 })
                 setCourseList(courseListWithState)
                 setCourseListDelivered(resultDelivered)
-                return result
-
+                setDeliverIdList(deliverIdList)
+                return response.data
             })
             .catch((error) => {
                 const errorStatus = error.response?.status
@@ -103,13 +103,13 @@ const FacultySend = () => {
                     const classIdList = courstListChecked.map(c => c.class_id)
                     // const facultyId = organization_code
                     const facultyId = '01'
-
                     return await axios
                         .post(`${appApiHost}/faculty/delivercreate`, {
                             classIdList,
                             facultyId
                         }, {
-                            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
+                            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+                            params: { gradeType }
                         }).then((response) => {
                             return response.data
                         }).catch((error) => {
@@ -135,41 +135,128 @@ const FacultySend = () => {
     }
 
     const handleClickDeliver = (deliverId) => {
-        Swal.fire({
-            title: 'รหัสการนำส่ง 0000001 (1 รายการ)',
-            width: '70vw',
-            confirmButtonText: `พิมพ์ใบนำส่ง`,
-            showCancelButton: true,
-            showDenyButton: true,
-            denyButtonText: 'ssss',
-            cancelButtonText: `ปิด`,
-            html: `<hr />
+        const deliverDetail = deliverIdList.find(deliver => deliver.deliver_id == deliverId)
+        const { deliver_id, status, class_amount, facuser_deliver_datetime, class_deliver_list, facuser_deliver_itaccountname } = deliverDetail
+        const deliverTime = datetimeTextThai(facuser_deliver_datetime)
+        const isShowDenyButton = status == 1
+        const statusText = status == 0 ? `<span class='text-danger'>ยกเลิกการนำส่งครั้งนี้</span>` : `ปกติ`
+        const regSubmitStatus = false || 'ยังไม่ได้ยืนยัน'
+        const ClassList = class_deliver_list.split(',')
+        let ClassListHtml = ''
+        ClassList.map((classId, index) => {
+            const thisTerm = classId.substring(0, 5)
+            const thisCourseNo = classId.substring(5, 11)
+            const thisSecLec = classId.substring(11, 14)
+            const thisSecLab = classId.substring(14, 17)
+            const thisIndex = index + 1
+            ClassListHtml += `
+            <tr>
+                    <td>${thisIndex}</td>
+                    <td>${thisTerm}</td>
+                    <td>${thisCourseNo}</td>
+                    <td>${thisSecLec}</td>
+                    <td>${thisSecLab}</td>
+                </tr>`
+        })
+
+        const html = `<hr />
                     <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th>ที่</th>
-                                <th>ภาคการศึกษา<br />ที่ได้รับอักษร ${gradeTypeTitle}</th>
-                                <th>รหัสกระบวนวิชา<br />(ตอนบรรยาย-ตอนปฏิบัติการ)</th>
-                                <th>ชื่อกระบวนวิชา</th>
-                                <th>เจ้าหน้าที่คณะที่นำส่ง</th>
-                                <th>เวลาที่นำส่ง</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>2/2564</td>
-                                <td>001489 (000-016)</td>
-                                <td>INDEPENDENT STUDY</td>
-                                <td>sitthiphon.s</td>
-                                <td>2022-09-30 21:23:24</td>
-                            </tr></tbody>
-                    </table>`
+                    <tbody>
+                    <tr>
+                    <th>สถานะ</th>
+                    <td style='text-align: left;'>${statusText}</td>
+                    </tr>
+                    <tr>
+                    <tr>
+                    <th>วันเวลาที่นำส่ง</th>
+                    <td style='text-align: left;'>${deliverTime}</td>
+                    </tr>
+                    <tr>
+                    <th>เจ้าหน้าที่คณะที่นำส่ง</th>
+                    <td style='text-align: left;'>${facuser_deliver_itaccountname}</td>
+                    </tr>
+                    <tr>
+                    <th>จำนวนตอนกระบวนวิชาที่นำส่ง</th>
+                    <td style='text-align: left;'>${class_amount} ตอน</td>
+                    </tr>
+                    <tr>
+                    <th class='text-success'>สำนักทะเบียนฯ ยืนยันแล้วเมื่อ</th>
+                    <td style='text-align: left;'>${regSubmitStatus}</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                    <hr />
+                    <table class='table table-bordered'>
+                    <thead>
+                    <tr>
+                    <th>ที่</th>
+                    <th>ภาคการศึกษา<br />ที่ได้รับอักษร ${gradeTypeTitle}</th>
+                    <th>รหัสกระบวนวิชาที่นำส่ง</th>
+                    <th>ตอนบรรยาย</th>
+                    <th>ตอนปฏิบัติการ</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${ClassListHtml}
+                    </tbody>
+                    </table>
+                    <p class='small'>code: ${deliver_id}</p>`
+
+        Swal.fire({
+            title: `ประวัติการนำส่ง`,
+            width: '80vw',
+            showCancelButton: true,
+            showDenyButton: isShowDenyButton,
+            confirmButtonText: `พิมพ์ใบนำส่ง`,
+            denyButtonText: 'ยกเลิกการนำส่งนี้',
+            cancelButtonText: `ปิด`,
+            html: html
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire('ดาวน์โหลดใบนำส่งแล้ว')
+            }
+            else if (result.isDenied) {
+                Swal.fire({
+                    icon: "question",
+                    title: 'ต้องการยกเลิกการนำส่งนี้ ?',
+                    showLoaderOnConfirm: true,
+                    backdrop: true,
+                    preConfirm: async () => {
+                        // const facultyId = organization_code
+                        const facultyId = '01'
+
+                        return await axios
+                            .post(`${appApiHost}/faculty/delivercancel/${deliver_id}`, {
+                                facultyId
+                            }, {
+                                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+                            }).then((response) => {
+                                return response.data
+                            }).catch((error) => {
+                                console.log(error);
+                                // console.log(error.response.data);
+                                Swal.showValidationMessage(`DeliverCancel API failed`)
+                            })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: `ยกเลิกการนำส่งครั้งนี้แล้ว`,
+                            confirmButtonText: 'ตกลง',
+                            timer: '3000',
+                        }).then(() => {
+                            window.location.reload()
+                        })
+                    }
+                })
+            }
         })
     }
 
     useEffect(() => {
-        getCourseForFaculty()
+        getCourseForDeliver()
     }, []);
 
     useEffect(() => {
@@ -184,12 +271,19 @@ const FacultySend = () => {
         <MainSidebarLayout sidebarContent={<div className='mt-4'>
             <h5 className='text-secondary'>ประวัติการนำส่ง</h5>
             <hr />
-            <Button variant=''>
-                <h6 onClick={() => handleClickDeliver(1)}>2022-09-30 21:23:24 (1 ตอน)</h6>
-            </Button>
+            {deliverIdList.map(deliver => {
+                const { deliver_id, facuser_deliver_datetime, class_amount, status } = deliver
+                const deliverTime = datetimeTextThai(facuser_deliver_datetime)
+                return (
+                    <Button variant='' key={deliver_id}>
+                        <h6 className={status == 0 ? 'text-secondary' : ''} onClick={() => handleClickDeliver(deliver_id)}>{deliverTime} ({class_amount} ตอน)</h6>
+                    </Button>
+                )
+            })}
         </div>}>
             <h2>นำส่งลำดับขั้นแก้ไขอักษร {gradeTypeTitle} {organization_name_TH}</h2>
-            <h4 className='mt-4'>กระบวนวิชาที่รอนำส่งลำดับขั้น</h4>
+            <hr />
+            <h4 className='mt-4'>รอนำส่งลำดับขั้น</h4>
             {courseList.length
                 ?
                 <>
@@ -214,8 +308,6 @@ const FacultySend = () => {
                                     const rowNumber = index + 1
                                     const courseLecLab = course.courseno + ' (' + course.seclec + '-' + course.seclab + ')'
                                     const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
-                                    const studntAmountTextColor = course.filled_student === course.all_student ? 'text-success' : ''
-                                    const isShowAction = course.deptuser_submit_itaccountname == null
 
                                     return (
                                         <tr key={course.class_id} >
@@ -258,10 +350,10 @@ const FacultySend = () => {
                 <hr />
             </div>
             <div>
-                <h4 className='mt-4'>กระบวนวิชาที่นำส่งแล้ว</h4>
+                <h4 className='mt-4 text-secondary'>นำส่งลำดับขั้นแล้ว</h4>
                 {courseListDelivered.length
                     ?
-                    <Table size='sm' hover responsive='xl' className='mt-4'>
+                    <Table size='sm' hover responsive='xl' className='mt-4 text-secondary'>
                         <thead className='tableHead'>
                             <tr className='text-center'>
                                 <th>ที่</th>

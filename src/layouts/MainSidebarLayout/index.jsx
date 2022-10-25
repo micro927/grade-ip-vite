@@ -22,7 +22,7 @@ const MainSidebarLayout = (props) => {
                 <Container fluid>
                     <Row>
                         <Col xl={2} className='sidebarBox'>
-                            <div className='sidebar px-4 pt-2'>
+                            <div className='sidebar pt-2'>
                                 {props.sidebarContent}
                             </div>
                         </Col>
