@@ -28,6 +28,7 @@ const FileUploaderButton = ({ uploadId, children, variant, handleFileFunction })
                 ref={hiddenFileInput}
                 onChange={handleChange}
                 style={{ display: 'none' }}
+                accept=".xlsx"
             />
         </>
     );
