@@ -1,6 +1,5 @@
 import '../../styles/table.scss'
-// import '../../styles/_global.scss'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Table, Button } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
@@ -9,11 +8,14 @@ import MainLayout from "../../layouts/MainLayout";
 import StepStatusBar from '../../components/StepStatusBar'
 import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
+import { AppContext } from '../../components/Provider';
+
 import { datetimeTextThai } from '../../utils';
 
 
 const DepartmentSubmit = () => {
     const appApiHost = import.meta.env.VITE_API_HOST
+    const { AppThisSemester, AppThisYear } = useContext(AppContext)
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const navigate = useNavigate()
@@ -143,6 +145,27 @@ const DepartmentSubmit = () => {
         })
     }
 
+    const handleClickCMR = async (classId) => {
+        await axios
+            .get(`${appApiHost}/teacher/cmr541/${classId}`, {
+                responseType: 'blob', // important
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+            }).then((response) => {
+                const href = window.URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                link.href = href;
+                link.setAttribute('download', AppThisSemester + AppThisYear + '-' + classId + '.pdf');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link)
+                URL.revokeObjectURL(href);
+
+            })
+            .catch((error) => {
+                console.log('cmr54 download: ', error);
+            })
+    }
+
     useEffect(() => {
         getCourseForDepartment()
     }, []);
@@ -185,7 +208,7 @@ const DepartmentSubmit = () => {
                                                     <div>
                                                         {course?.submit_status == 1 && <Button className='me-2' size='' variant='primary' onClick={() => handleClickSubmit(course.class_id)}><Icon.Check2Circle /> ยืนยันลำดับขั้น</Button>}
                                                         <Button className='me-2' size='' variant='outline-primary' onClick={() => navigate(`/teacher/fill/${course.class_id}`)}><Icon.CardList /> ดูข้อมูล</Button>
-                                                        <Button className='me-2' size='' variant='outline-primary' onClick={() => navigate(`/teacher/cmr54/${course.class_id}`)}> <Icon.FileEarmarkRuled /> CMR54</Button>
+                                                        <Button className='me-2' size='' variant='outline-primary' onClick={() => handleClickCMR(course.class_id)}> <Icon.FileEarmarkRuled /> CMR54</Button>
                                                         {course?.submit_status == 2 && <Button className='me-2' size='' variant='secondary' onClick={() => handleClickCancel(course.class_id, course.submission_id)}><Icon.XOctagon /> ยกเลิกการยืนยัน</Button>}
                                                     </div>
                                                 </>

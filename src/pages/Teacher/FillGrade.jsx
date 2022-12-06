@@ -300,8 +300,8 @@ function FillGrade() {
                         <h4 className='py-2'>สถานะการดำเนินการ</h4>
                         {courseDetail.submission_id && <p><Icon.CheckCircleFill /> เจ้าหน้าที่ภาควิชายืนยันแล้ว โดย: {courseDetail.deptuser_submit_itaccountname}, วันเวลาที่ยืนยัน: {datetimeTextThai(courseDetail.deptuser_submit_datetime)}</p>}
                         {courseDetail.facuser_submit_itaccountname && <p><Icon.CheckCircleFill /> เจ้าหน้าที่คณะยืนยันแล้ว โดย: {courseDetail.facuser_submit_itaccountname}, วันเวลาที่ยืนยัน: {datetimeTextThai(courseDetail.facuser_submit_datetime)}</p>}
-                        {courseDetail.deliver_id && <p><Icon.CheckCircleFill /> เจ้าหน้าที่คณะนำส่งแล้ว วันเวลาที่นำส่ง: {courseDetail.facuser_deliver_datetime}</p>}
-                        {courseDetail.reguser_submit_itaccountname && <p><Icon.CheckCircleFill /> สำนักทะเบียนยืนยันแล้ว, วันเวลาที่ยืนยัน : {courseDetail.reguser_submit_datetime}</p>}
+                        {courseDetail.deliver_id && <p><Icon.CheckCircleFill /> เจ้าหน้าที่คณะนำส่งแล้ว โดย: {courseDetail.facuser_deliver_itaccountname}, วันเวลาที่นำส่ง: {datetimeTextThai(courseDetail.facuser_deliver_datetime)}</p>}
+                        {courseDetail.reg_submit_itaccountname && <p className='fw-bold text-success'><Icon.CheckCircleFill /> สำนักทะเบียนยืนยันแล้ว, วันเวลาที่ยืนยัน : {datetimeTextThai(courseDetail.reg_submit_datetime)}</p>}
                     </Card.Body>
                 </Card>
             }

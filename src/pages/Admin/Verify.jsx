@@ -1,7 +1,6 @@
 import '../../styles/swal.scss'
 // import '../../styles/_global.scss'
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { Table, Button, Form } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import axios from 'axios';
@@ -14,55 +13,83 @@ const AdminVerify = () => {
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
     const [courseList, setCourseList] = useState([]);
-    const [countChecked, setCountChecked] = useState(-1);
+    const appApiHost = import.meta.env.VITE_API_HOST
+    const deliverRowLimit = 10
 
 
-    const getCourseForFaculty = async () => {
-        const appApiHost = import.meta.env.VITE_API_HOST
+    const getVerifiedList = async () => {
         let result
         await axios
-            .get(`${appApiHost}/admin/courseforverifylist`, {
+            .get(`${appApiHost}/admin/verifiedList`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
-                params: { gradeType: gradeType }
+                params: { gradeType, deliverRowLimit }
             })
             .then(async (response) => {
                 result = await response.data
-                const courseListWithState = result.map(course => {
-                    return {
-                        ...course,
-                    }
-                })
-                const fake = courseListWithState.filter(c => c.seclab == '016')
-                setCourseList(fake)
-                return result
-
+                setCourseList(result)
             })
             .catch((error) => {
-                const errorStatus = error.response?.status
+                const errorStatus = error.response.status
                 if (errorStatus == 401) {
-                    navigate('./' + errorStatus)
+                    navigate({
+                        to: '/' + errorStatus,
+                        options: {
+                            replace: true
+                        }
+                    })
                 }
                 else {
-                    console.error('API ERROR : ' + error)
+                    console.error('API ERROR : ' + error.code)
+                    result = []
+                    setCourseList(result)
                 }
             })
     }
 
+    const submitDeliverId = (deliverId) => {
+        if (deliverId.length == 32) {
+            axios
+                .post(`${appApiHost}/admin/submit`, {
+                    deliverId
+                }, {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), }
+                }).then((response) => {
+                    const statusIcon = response.data.affectedRows > 0 ? 'success' : 'error'
+                    console.log(response.data)
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: statusIcon,
+                        title: `ยืนยันการนำส่ง ${response.data.affectedRows} รายการ`,
+                        showConfirmButton: false,
+                        timer: '1000',
+                        timerProgressBar: true,
+                    }).then(() => window.location.reload())
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                    Swal.fire(`Submit API failed`)
+                })
+        }
+        else {
+            console.log(deliverId);
+        }
+    }
 
     useEffect(() => {
-        getCourseForFaculty()
+        getVerifiedList()
     }, []);
-
 
     return (
         <MainLayout>
             <h2 className='text-center'>ยืนยันการส่งลำดับขั้น {gradeTypeTitle}</h2>
+
             <div className='d-grid'>
                 <Form.Group className="mb-3">
                     <Form.Label>กรุณาสแกนบาร์โค้ด</Form.Label>
-                    <Form.Control type="email" placeholder="Enter Submission Code" />
+                    <Form.Control autoFocus type="text" onChange={e => submitDeliverId(e.target.value)} placeholder="Enter Deliver Code" />
                 </Form.Group>
-                <Button size='lg' variant='primary'>คลิกหรือแสกนเพื่อยืนยัน</Button>
+                <Button size='lg' variant='primary' disabled>แสกนเพื่อยืนยัน</Button>
             </div>
             <hr />
             <h4 className='mt-5 text-center'>รายการที่ยืนยันการแก้ไขล่าสุด</h4>
@@ -80,9 +107,10 @@ const AdminVerify = () => {
                 </thead>
                 <tbody className='tableBody'>
                     {courseList.map((course, index) => {
+                        const rowNo = index + 1
                         return (
                             <tr key={course.class_id} >
-                                <td className='text-center'>000001</td>
+                                <td className='text-center'>{rowNo}</td>
                                 <td className='text-center'>{course.courseno}</td>
                                 <td className='text-center'>{course.seclec}</td>
                                 <td className='text-center'>{course.seclab}</td>
@@ -94,7 +122,6 @@ const AdminVerify = () => {
                     })}
                 </tbody>
             </Table>
-
         </MainLayout>
     )
 }

@@ -48,10 +48,10 @@ function AppNavbar() {
                                     {roleLevel >= 3 && <Nav.Link href='/faculty' className='text-black-50'>ยืนยันเกรด (คณะ)</Nav.Link>}
                                     {roleLevel >= 3 && <Nav.Link href='/faculty/send' className='text-black-50'>นำส่งสำนักทะเบียน</Nav.Link>}
                                     {roleLevel >= 9 && <Nav.Link href='/verify' className='text-black-50'>ยืนยันเกรดสำนักทะเบียนฯ</Nav.Link>}
-                                    <Nav.Link href='/summary' className='text-black-50'>ภาพรวม</Nav.Link>
+                                    <Nav.Link href='/summary' disabled className='text-black-50'>ภาพรวม</Nav.Link>
                                 </>
                             }
-                            <Nav.Link className='text-black-50'>คู่มือการใช้งาน</Nav.Link>
+                            <Nav.Link disabled className='text-black-50'>คู่มือการใช้งาน</Nav.Link>
                         </Nav>
                         {isLogin
                             ?

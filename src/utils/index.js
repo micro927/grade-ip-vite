@@ -1,5 +1,5 @@
 function datetimeTextThai(datetime) {
-    return datetime == null ? '' : new Date(datetime).toLocaleString('th-TH', {
+    return datetime == null ? null : new Date(datetime).toLocaleString('th-TH', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

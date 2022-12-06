@@ -101,8 +101,8 @@ const FacultySend = () => {
                 preConfirm: async () => {
                     const courstListChecked = courseList.filter(c => c.isChecked == true)
                     const classIdList = courstListChecked.map(c => c.class_id)
-                    // const facultyId = organization_code
-                    const facultyId = '01'
+                    const facultyId = organization_code
+                    // const facultyId = '01'
                     return await axios
                         .post(`${appApiHost}/faculty/delivercreate`, {
                             classIdList,
@@ -136,11 +136,11 @@ const FacultySend = () => {
 
     const handleClickDeliver = (deliverId) => {
         const deliverDetail = deliverIdList.find(deliver => deliver.deliver_id == deliverId)
-        const { deliver_id, status, class_amount, facuser_deliver_datetime, class_deliver_list, facuser_deliver_itaccountname } = deliverDetail
+        const { deliver_id, status, class_amount, facuser_deliver_datetime, class_deliver_list, facuser_deliver_itaccountname, reg_submit_itaccountname, reg_submit_datetime } = deliverDetail
         const deliverTime = datetimeTextThai(facuser_deliver_datetime)
-        const isShowDenyButton = status == 1
+        const isShowDenyButton = status == 1 && !(reg_submit_itaccountname)
         const statusText = status == 0 ? `<span class='text-danger'>ยกเลิกการนำส่งครั้งนี้</span>` : `ปกติ`
-        const regSubmitStatus = false || 'ยังไม่ได้ยืนยัน'
+        const regSubmitStatus = datetimeTextThai(reg_submit_datetime) || 'ยังไม่ได้ยืนยัน'
         const ClassList = class_deliver_list.split(',')
         let ClassListHtml = ''
         ClassList.map((classId, index) => {
@@ -219,11 +219,13 @@ const FacultySend = () => {
                 Swal.fire({
                     icon: "question",
                     title: 'ต้องการยกเลิกการนำส่งนี้ ?',
+                    confirmButtonText: `ยืนยันยกเลิกการนำส่ง`,
+                    confirmButtonColor: `#dc3545`,
                     showLoaderOnConfirm: true,
                     backdrop: true,
                     preConfirm: async () => {
-                        // const facultyId = organization_code
-                        const facultyId = '01'
+                        const facultyId = organization_code
+                        // const facultyId = '01'
 
                         return await axios
                             .post(`${appApiHost}/faculty/delivercancel/${deliver_id}`, {
@@ -276,7 +278,7 @@ const FacultySend = () => {
                 const deliverTime = datetimeTextThai(facuser_deliver_datetime)
                 return (
                     <Button variant='' key={deliver_id}>
-                        <h6 className={status == 0 ? 'text-secondary' : ''} onClick={() => handleClickDeliver(deliver_id)}>{deliverTime} ({class_amount} ตอน)</h6>
+                        <h6 className={status == 0 ? 'text-danger' : ''} onClick={() => handleClickDeliver(deliver_id)}>{deliverTime}  {status == 0 ? '(ยกเลิก)' : '(' + class_amount + ' ตอน)'}</h6>
                     </Button>
                 )
             })}
