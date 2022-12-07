@@ -2,12 +2,9 @@ import Spinner from 'react-bootstrap/Spinner';
 import {
     Navigate,
     useSearchParams,
-    useNavigate
 } from 'react-router-dom';
 import axios from 'axios';
 import AlertLayout from '../../layouts/AlertLayout'
-import Swal from 'sweetalert2';
-import { useState } from 'react';
 
 const redirectToCmuOauth = () => {
     const oauthLoginUrl = import.meta.env.VITE_CMU_OAUTH_LOGIN_URL
@@ -27,8 +24,7 @@ const clearLocalStorage = () => {
 
 const Logout = () => {
     clearLocalStorage()
-    return (
-        window.location.reload())
+    return window.location.href = '/'
 }
 
 const Authentication = () => {

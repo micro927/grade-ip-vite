@@ -1,6 +1,6 @@
 import '../../styles/swal.scss'
 // import '../../styles/_global.scss'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Form } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
@@ -9,6 +9,7 @@ import MainSidebarLayout from "../../layouts/MainSidebarLayout";
 import NoDataBox from "../../components/NoDataBox"
 import Swal from 'sweetalert2';
 import { datetimeTextThai } from '../../utils';
+import { AppContext } from '../../components/Provider';
 
 
 const FacultySend = () => {
@@ -16,6 +17,7 @@ const FacultySend = () => {
     const gradeType = localStorage.getItem('gradeType') ?? false
     const { organization_name_TH, organization_code } = JSON.parse(localStorage.getItem('loginInfo'))
     const gradeTypeTitle = gradeType.toUpperCase()
+    const { AppThisSemester, AppThisYear } = useContext(AppContext)
     const navigate = useNavigate()
     const [courseList, setCourseList] = useState([])
     const [courseListDelivered, setCourseListDelivered] = useState([])
@@ -133,6 +135,27 @@ const FacultySend = () => {
             })
         }
     }
+    const downloadCMR541 = async (deliverId) => {
+        await axios
+            .get(`${appApiHost}/faculty/cmr541/${deliverId}`, {
+                responseType: 'blob', // important
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
+            }).then((response) => {
+                console.log(response);
+                const href = window.URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                link.href = href;
+                link.setAttribute('download', `รายงานสรุปการส่งเกรดแก้ไขอักษรลำดับขึั้น ${gradeTypeTitle}_${AppThisSemester}${AppThisYear}_${deliverId}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link)
+                URL.revokeObjectURL(href);
+
+            })
+            .catch((error) => {
+                console.log('cmr541 download: ', error);
+            })
+    }
 
     const handleClickDeliver = (deliverId) => {
         const deliverDetail = deliverIdList.find(deliver => deliver.deliver_id == deliverId)
@@ -211,9 +234,9 @@ const FacultySend = () => {
             denyButtonText: 'ยกเลิกการนำส่งนี้',
             cancelButtonText: `ปิด`,
             html: html
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                Swal.fire('ดาวน์โหลดใบนำส่งแล้ว')
+                await downloadCMR541(deliver_id)
             }
             else if (result.isDenied) {
                 Swal.fire({

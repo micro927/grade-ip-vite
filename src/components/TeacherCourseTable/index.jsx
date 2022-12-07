@@ -116,7 +116,7 @@ function TeacherCourseTable({ courseList }) {
 
     const onClickCMR = async (classId) => {
         await axios
-            .get(`${appApiHost}/teacher/cmr541/${classId}`, {
+            .get(`${appApiHost}/teacher/cmr54/${classId}`, {
                 responseType: 'blob', // important
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken'), },
             }).then((response) => {
