@@ -21,6 +21,8 @@ const DepartmentSubmit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const [courseList, setCourseList] = useState([]);
+    const [pageState, setPageState] = useState('Loading........');
+
 
     const getCourseForDepartment = async () => {
         let result
@@ -31,7 +33,12 @@ const DepartmentSubmit = () => {
             })
             .then(async (response) => {
                 result = await response.data
-                setCourseList(result)
+                if (result.length > 0) {
+                    setCourseList(result)
+                }
+                else {
+                    setPageState(`ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษรลำดับขั้น ${gradeTypeTitle}`)
+                }
             })
             .catch((error) => {
                 const errorStatus = error.response.status
@@ -221,7 +228,7 @@ const DepartmentSubmit = () => {
                         </tbody>
                     </Table>
                 </>
-                : <NoDataBox msg={"ไม่พบกระบวนวิชาที่ต้องยืนยันลำดับขั้นแก้ไขอักษร " + gradeTypeTitle} />
+                : <NoDataBox msg={pageState} />
             }
         </MainLayout>
     )

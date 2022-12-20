@@ -51,7 +51,7 @@ function StepProgressBar() {
                             <li key={index} className="d-flex flex-column justify-content-between align-items-center">
                                 <h5 className='text-dark'>{step.label}</h5>
                                 <h6 className="">{step.subtitle}</h6>
-                                <Button variant='outline-dark' className="" href={step.to} disabled={role < step.levelRequire}>{step.button}</Button>
+                                <Button variant={role < step.levelRequire ? 'outline-secondary' : 'outline-dark'} className="" href={step.to} disabled={role < step.levelRequire}>{step.button}</Button>
                             </li>
                         )
                     })

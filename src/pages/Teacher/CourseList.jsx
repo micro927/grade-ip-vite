@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import MainLayout from '../../layouts/MainLayout'
 import TeacherCourseTable from '../../components/TeacherCourseTable';
+import NoDataBox from '../../components/NoDataBox';
 
 const ListCourse = () => {
     const [courseList, setCourseList] = useState([]);
     const [courseYearlyList, setCourseYearlyList] = useState([]);
+    const [pageState, setPageState] = useState('Loading........');
     const gradeType = localStorage.getItem('gradeType') ?? false
     const gradeTypeTitle = gradeType.toUpperCase()
 
@@ -20,44 +22,47 @@ const ListCourse = () => {
             })
             .then(async (response) => {
                 result = await response.data
-                const courseListEdited = await result.map((course) => {
-                    const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
-                    const isAllfilled = course.filled_student === course.all_student
-                    const submitStatus = isAllfilled
-                        ? course.submit_status
-                        : 'wait_fill'
-                    return {
-                        ...course,
-                        courseTermTitle,
-                        isAllfilled,
-                        submitStatus,
-                    }
-                })
+                if (result.length > 0) {
+                    const courseListEdited = await result.map((course) => {
+                        const courseTermTitle = course.yearly ? course.year + " (รายปี)" : course.semester + '/' + course.year
+                        const isAllfilled = course.filled_student === course.all_student
+                        const submitStatus = isAllfilled
+                            ? course.submit_status
+                            : 'wait_fill'
+                        return {
+                            ...course,
+                            courseTermTitle,
+                            isAllfilled,
+                            submitStatus,
+                        }
+                    })
 
-                setCourseList(() => {
-                    return courseListEdited.filter(course => course.yearly == false)
-                })
+                    setCourseList(() => {
+                        return courseListEdited.filter(course => course.yearly == false)
+                    })
 
-                setCourseYearlyList(() => {
-                    return courseListEdited.filter(course => course.yearly == true)
-                })
-            })
-            .catch((error) => {
-                const errorStatus = error.response.status
-                if (errorStatus == 401) {
-                    window.location.href = '/' + errorStatus
+                    setCourseYearlyList(() => {
+                        return courseListEdited.filter(course => course.yearly == true)
+                    })
                 }
                 else {
-                    console.error('API ERROR : ' + error.code)
-                    result = []
-                    setCourseList(result)
+                    setPageState(`ไม่พบกระบวนวิชาที่ต้องแก้ไขอักษรลำดับขั้น ${gradeTypeTitle}`)
                 }
+            })
+            .catch((error) => {
+                console.warn(error)
+                const errorStatus = error?.response?.status || 500
+                console.error('API ERROR : ' + error.code)
+                result = []
+                setCourseList(result)
+                // window.location.href = '/' + errorStatus
             })
     }
 
     useEffect(() => {
         getCourseForTeacher()
     }, []);
+
     return (
         <MainLayout>
             <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
@@ -76,7 +81,7 @@ const ListCourse = () => {
                         </>
                         : ''}
                 </>
-                : <h4 className='my-5 text-center'>Loading........</h4>
+                : <NoDataBox msg={pageState} />
             }
         </MainLayout>
     )

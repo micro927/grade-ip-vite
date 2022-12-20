@@ -37,16 +37,16 @@ const Authentication = () => {
             const appLoginUrl = (import.meta.env.VITE_API_HOST) + '/login'
             axios
                 .get(`${appLoginUrl}?code=${cmuCode}`)
-                .then((response) => {
+                .then(async (response) => {
                     localStorage.setItem('loginInfo', JSON.stringify(response?.data))
                     localStorage.setItem('isLogin', true)
-                    localStorage.setItem('userToken', response.data?.userToken)
-                    console.log(response.data.cmuitaccount_name);
+                    localStorage.setItem('userToken', await response.data?.userToken)
+                    console.log(await response.data.cmuitaccount_name);
                     window.location.href = '/'
                 })
-                .catch(({ code, message }) => {
-                    console.log(code, message);
-                    window.location.href = '/500'
+                .catch((error) => {
+                    console.log(error);
+                    // window.location.href = '/'
 
                 })
         } else {
@@ -78,7 +78,7 @@ const checkUserToken = async (userToken) => {
             }
         )
         .then(async (response) => {
-            isValid = await response.data.isAuthorized;
+            isValid = await response?.data?.isAuthorized || false;
             if (!isValid) {
                 clearLocalStorage()
             }

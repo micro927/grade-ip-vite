@@ -32,7 +32,7 @@ function FillGrade() {
     const [studentList, setStudentList] = useState([]);
     const [excelStudentList, setExcelStudentList] = useState([]);
     const [gradeOption, setGradeOption] = useState([]);
-    const [courseDetail, setCourseDetail] = useState([]);
+    const [courseDetail, setCourseDetail] = useState({});
     const [countGradeChange, setCountGradeChange] = useState(-1);
     const [isEditable, setIsEditable] = useState(true);
 
@@ -184,7 +184,7 @@ function FillGrade() {
     const handleClickConfirm = () => {
         if (countGradeChange > 0) {
             const textForCheck = `
-        <p><span>${courseDetail.courseno} (${courseDetail.seclec} -${courseDetail.seclab}) <br> ${courseDetail.course_title}</span></p> 
+        <p><span>${courseDetail?.courseno} (${courseDetail?.seclec} -${courseDetail?.seclab}) <br> ${courseDetail?.course_title}</span></p> 
         <p>จำนวนนักศึกษาที่แก้ไข : <span>${countGradeChange} ราย</span></p>
         `
             Swal.fire({
@@ -290,10 +290,12 @@ function FillGrade() {
     return (
         <MainLayout>
             <h2>บันทึกลำดับขั้นแก้ไขอักษร {gradeTypeTitle}</h2>
-            <div className='text-secondary d-flex justify-content-between'>
-                <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab}) |  ${courseDetail.course_title}`}</h4>
-                <h4>ภาคการศึกษาที่ได้รับอักษร {gradeTypeTitle} : {courseDetail.semester}/{courseDetail.year}</h4>
-            </div>
+            {courseDetail?.courseno &&
+                <div className='text-secondary d-flex justify-content-between'>
+                    <h4>{`${courseDetail.courseno} (${courseDetail.seclec}-${courseDetail.seclab}) |  ${courseDetail.course_title}`}</h4>
+                    <h4>ภาคการศึกษาที่ได้รับอักษร {gradeTypeTitle} : {courseDetail.semester}/{courseDetail.year}</h4>
+                </div>
+            }
             {!isEditable &&
                 <Card className='rounded-0 my-4'>
                     <Card.Body>

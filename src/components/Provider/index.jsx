@@ -25,7 +25,7 @@ const AppContextProvider = (props) => {
                     }
                 })
                 .catch(async (error) => {
-                    tokenValidation = await error.response.data?.isAuthorized || false
+                    tokenValidation = await error?.response?.data?.isAuthorized || false
                     // console.error('API CHECK ERROR : ' + error.code)
                     console.log('NOT LOGIN')
                 })
